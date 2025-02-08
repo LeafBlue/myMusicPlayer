@@ -1,0 +1,37 @@
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include<QMainWindow>
+#include<QStyle>
+#include<QWidget>
+#include<QObject>
+#include<QLayout>
+#include<QPushButton>
+#include<QLabel>
+#include<QFont>
+#include<QScrollArea>
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+
+public:
+
+
+
+    MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
+
+    void setwindow();
+    void settitlecolumn();
+    void settitle(QString window_title);
+    void setworkarea();
+
+private:
+    //界面相关
+    QWidget *center;
+    QWidget *title;
+    QHBoxLayout *work_area;
+    QLabel *title_text;
+};
+#endif // MAINWINDOW_H
