@@ -10,24 +10,26 @@ MainWindow::MainWindow(QWidget *parent)
     title = nullptr;
     work_area = nullptr;
     title_text = nullptr;
+    control_area=nullptr;
 
 
     setwindow();
     settitlecolumn();
-    settitle(QObject::tr("我的音乐播放器"));
+    settitle(QObject::tr("  我的音乐播放器"));
     setworkarea();
+    setcontrol();
 
 }
 
 MainWindow::~MainWindow() {}
-
+//--------------------------------------------------------------------绘制界面 开始--------------------------------------------------------------------
 void MainWindow::setwindow()
 {
     resize(1080,720);
     setWindowFlags(Qt::FramelessWindowHint);
 
     center = new QWidget(this);
-    center->setStyleSheet("background-color: silver;");
+    center->setStyleSheet("background-color: SlateGray;");
 
     setCentralWidget(center);
     center->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
@@ -39,15 +41,19 @@ void MainWindow::setwindow()
     title = new QWidget(center);
     title->setFixedHeight(50);
     title->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
-    title->setStyleSheet("background-color: lightgray;");
+    title->setStyleSheet("background-color: DimGray;");
 
     work_area = new QHBoxLayout();
     work_area->setContentsMargins(0,0,0,0);
     work_area->setSpacing(0);
 
+    control_area = new QHBoxLayout();
+    control_area->setContentsMargins(0,0,0,0);
+    control_area->setSpacing(0);
 
-    layout->addWidget(title,0);
-    layout->addLayout(work_area,4);
+    layout->addWidget(title,1);
+    layout->addLayout(work_area,8);
+    layout->addLayout(control_area,1);
 }
 
 void MainWindow::settitlecolumn()
@@ -57,7 +63,7 @@ void MainWindow::settitlecolumn()
     title_inwid->setSpacing(0);
 
     title_text = new QLabel(title);
-    title_text->setStyleSheet("border:none;font-size:25px;");
+    title_text->setStyleSheet("border:none;font-size:20px;color:white;");
     title_inwid->addWidget(title_text);
 
     //弹性空间
@@ -65,8 +71,8 @@ void MainWindow::settitlecolumn()
 
     QPushButton *closewindow = new QPushButton(title);
     closewindow->setText(QObject::tr("×"));
-    closewindow->setStyleSheet("QPushButton { background-color: black;color:silver;font-size:35px;font-weight: bold; }"
-                               "QPushButton:hover { background-color: black;color:red;font-size:35px;font-weight: bold; }");
+    closewindow->setStyleSheet("QPushButton { background-color: LightSlateGray;color:silver;font-size:35px;font-weight: bold;border:0.5px solid DimGray; }"
+                               "QPushButton:hover { background-color: DarkSlateGray;color:silver;font-size:35px;font-weight: bold;border:1px solid DimGray; }");
     closewindow->setFixedSize(50,50);
 
     connect(closewindow,&QPushButton::clicked,this,&MainWindow::close);
@@ -112,24 +118,36 @@ void MainWindow::setworkarea()
     //在这里面再放一个布局
     QVBoxLayout *in_scroolwid = new QVBoxLayout(in_scroll);
 
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 20; ++i) {
         QLabel *left_label = new QLabel(in_scroll);
         left_label->setText("菜单示例");
         left_label->setStyleSheet("border:2px solid black;font-size:20px;");
-        left_label->setAlignment(Qt::AlignCenter);  // 居中对齐文本
+        left_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         left_label->setFixedHeight(50);
         left_label->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
 
         in_scroolwid->addWidget(left_label);
     }
+    //为了避免label不够时呈现出均匀分布，设置一个占位将它们挤在上面
     in_scroolwid->addStretch();
+}
+
+void MainWindow::setcontrol()
+{
+    QWidget *ctrl_wid = new QWidget(center);
+    ctrl_wid->setFixedHeight(50);
+    ctrl_wid->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    control_area->addWidget(ctrl_wid);
+    ctrl_wid->setStyleSheet("background-color: DimGray;");
+
+
 }
 
 
 
 
 
-
+//--------------------------------------------------------------------绘制界面 结束--------------------------------------------------------------------
 
 
 
