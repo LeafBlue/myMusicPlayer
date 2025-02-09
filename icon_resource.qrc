@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icon/back.png</file>
+        <file>icon/danqu.png</file>
+        <file>icon/foward.png</file>
+        <file>icon/novoice.png</file>
+        <file>icon/pause.png</file>
+        <file>icon/play.png</file>
+        <file>icon/shunxu.png</file>
+        <file>icon/suiji.png</file>
+        <file>icon/voice.png</file>
+    </qresource>
+</RCC>

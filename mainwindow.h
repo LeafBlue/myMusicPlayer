@@ -10,6 +10,7 @@
 #include<QLabel>
 #include<QFont>
 #include<QScrollArea>
+#include<QSlider>
 
 class MainWindow : public QMainWindow
 {

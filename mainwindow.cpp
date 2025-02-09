@@ -140,6 +140,102 @@ void MainWindow::setcontrol()
     control_area->addWidget(ctrl_wid);
     ctrl_wid->setStyleSheet("background-color: DimGray;");
 
+    QHBoxLayout *ctrl_biglayout = new QHBoxLayout(ctrl_wid);
+    ctrl_biglayout->setContentsMargins(5,0,0,0);
+    ctrl_biglayout->setSpacing(0);
+
+    QWidget *music_info = new QWidget(ctrl_wid);
+    music_info->setFixedSize(200,50);
+    music_info->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
+
+
+    QLabel *music_name = new QLabel(music_info);
+    music_name->setFixedSize(200,50);
+    music_name->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
+    music_name->setStyleSheet("color:white;font-size:15px;");
+    music_name->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    music_name->setText(QObject::tr("黑色毛衣-周杰伦"));
+
+
+
+    QVBoxLayout *slider_layout = new QVBoxLayout();
+    slider_layout->setSpacing(0);
+
+    QSlider *slider = new QSlider(Qt::Horizontal);
+    slider->setMinimum(0);
+    slider->setMaximum(100);
+    slider->setStyleSheet(
+        "QSlider::groove:horizontal {"
+        "border: 1px solid #999999;"
+        "height: 8px;"
+        "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);"
+        "margin: 2px 0;"
+        "}"
+        "QSlider::handle:horizontal {"
+        "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);"
+        "border: 1px solid #5c5c5c;"
+        "width: 18px;"
+        "margin: -2px 0;"
+        "border-radius: 3px;"
+        "}"
+    );
+
+    slider_layout->addWidget(slider);
+
+
+    //布置按钮
+    QHBoxLayout *btn_layout = new QHBoxLayout();
+    for (int i = 0; i < 5; ++i) {
+        QPushButton *btn1 = new QPushButton();
+        QString backgroundimg;
+        if(i == 0){
+            backgroundimg = "url(:icon/danqu.png)";
+        }else if(i == 1){
+            backgroundimg = "url(:icon/back.png)";
+        }else if(i == 2){
+            backgroundimg = "url(:icon/play.png)";
+        }else if(i == 3){
+            backgroundimg = "url(:icon/foward.png)";
+        }else if(i == 4){
+            backgroundimg = "url(:icon/voice.png)";
+        }
+        //每次调用setStyleSheet都会覆盖上一次的setStyleSheet，所以尽可能整合为一个
+        btn1->setStyleSheet("QPushButton {"
+                        "background-color: SlateGray;color:silver;font-size:30px;font-weight: bold;border:0.5px solid DimGray; "
+                        "background-image:" + backgroundimg + ";"
+                        "background-repeat:no-repeat;"
+                        "background-position:center;"
+                        "}"
+                        "QPushButton:hover {"
+                        "background-color: DarkSlateGray;color:silver;font-size:30px;font-weight: bold;border:1px solid DimGray; "
+                        "background-repeat:no-repeat;"
+                        "background-position:center;"
+                        "}"
+                        "QPushButton:pressed {"
+                        "background-color: DarkSlateGray;color:silver;font-size:30px;font-weight: bold;border:3px solid DimGray; "
+                        "background-repeat:no-repeat;"
+                        "background-position:center;"
+                        "}");
+
+
+        btn1->setFixedSize(40,40);
+        btn_layout->addWidget(btn1);
+    }
+
+
+
+
+
+
+
+    ctrl_biglayout->addWidget(music_info);
+    ctrl_biglayout->addStretch();
+    //这里需要一个进度条组件
+    ctrl_biglayout->addLayout(slider_layout);
+    ctrl_biglayout->addStretch();
+    ctrl_biglayout->addLayout(btn_layout);
+
+
 
 }
 
