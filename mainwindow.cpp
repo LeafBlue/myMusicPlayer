@@ -4,7 +4,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     //关闭界面后立刻释放内存
-    setAttribute(Qt::WA_DeleteOnClose);
+    //setAttribute(Qt::WA_DeleteOnClose);
     //界面初始化
     center = nullptr;
     title = nullptr;
@@ -29,7 +29,7 @@ void MainWindow::setwindow()
     setWindowFlags(Qt::FramelessWindowHint);
 
     center = new QWidget(this);
-    center->setStyleSheet("background-color: SlateGray;");
+    center->setStyleSheet("background-color: white;");
 
     setCentralWidget(center);
     center->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
@@ -81,10 +81,6 @@ void MainWindow::settitlecolumn()
 
 
 
-void MainWindow::settitle(QString window_title)
-{
-    title_text->setText(window_title);
-}
 
 void MainWindow::setworkarea()
 {
@@ -97,12 +93,12 @@ void MainWindow::setworkarea()
     QVBoxLayout *left = new QVBoxLayout();
     left->setContentsMargins(0,0,0,0);
     left->setSpacing(0);
-    in_wid->addLayout(left,2);
+    in_wid->addLayout(left,1);
 
     QVBoxLayout *right = new QVBoxLayout();
     right->setContentsMargins(0,0,0,0);
     right->setSpacing(0);
-    in_wid->addLayout(right,5);
+    in_wid->addLayout(right,4);
 
     //定义一个滚动条组件
     QScrollArea *scroll = new QScrollArea(center);
@@ -117,17 +113,52 @@ void MainWindow::setworkarea()
 
     //在这里面再放一个布局
     QVBoxLayout *in_scroolwid = new QVBoxLayout(in_scroll);
+    in_scroolwid->setSpacing(0);
+    for (int i = 0; i < 6; ++i) {
 
+        QLabel *left_label = new QLabel(in_scroll);
+        if(i == 0){
+            left_label->setText("我的音乐");
+            left_label->setStyleSheet("border:1px solid lightgray;font-size:16px;color:gray;");
+            left_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+            left_label->setFixedHeight(50);
+            left_label->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+        }
+        else if(i == 5){
+            left_label->setText("创建的歌单");
+            left_label->setStyleSheet("border:1px solid lightgray;font-size:16px;color:gray;");
+            left_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+            left_label->setFixedHeight(50);
+            left_label->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+        }
+        else{
+            if(i == 1){
+                left_label->setText("  我的收藏");
+            }else if(i == 2){
+                left_label->setText("  本地音乐");
+            }else if(i == 3){
+                left_label->setText("  最近播放");
+            }else if(i == 4){
+                left_label->setText("  全部音乐");
+            }
+            left_label->setStyleSheet("border:1px solid lightgray;font-size:18px;color:black;font-weight: bold;");
+            left_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+            left_label->setFixedHeight(50);
+            left_label->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+        }
+        in_scroolwid->addWidget(left_label);
+    }
+    /*
     for (int i = 0; i < 20; ++i) {
         QLabel *left_label = new QLabel(in_scroll);
-        left_label->setText("菜单示例");
-        left_label->setStyleSheet("border:2px solid black;font-size:20px;");
+        left_label->setText("  歌单示例");
+        left_label->setStyleSheet("border:1px solid lightgray;font-size:18px;color:black;font-weight: bold;");
         left_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
         left_label->setFixedHeight(50);
         left_label->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
 
         in_scroolwid->addWidget(left_label);
-    }
+    }*/
     //为了避免label不够时呈现出均匀分布，设置一个占位将它们挤在上面
     in_scroolwid->addStretch();
 }
@@ -221,13 +252,6 @@ void MainWindow::setcontrol()
         btn1->setFixedSize(40,40);
         btn_layout->addWidget(btn1);
     }
-
-
-
-
-
-
-
     ctrl_biglayout->addWidget(music_info);
     ctrl_biglayout->addStretch();
     //这里需要一个进度条组件
@@ -244,6 +268,35 @@ void MainWindow::setcontrol()
 
 
 //--------------------------------------------------------------------绘制界面 结束--------------------------------------------------------------------
+
+//--------------------------------------------------------------------动态界面 开始--------------------------------------------------------------------
+
+
+void MainWindow::settitle(QString window_title)
+{
+    title_text->setText(window_title);
+}
+
+
+
+
+
+
+
+//--------------------------------------------------------------------动态界面 结束--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------逻辑相关 开始--------------------------------------------------------------------
+
+
+//--------------------------------------------------------------------逻辑相关 结束--------------------------------------------------------------------
+
+
+
+
+
+
+
 
 
 

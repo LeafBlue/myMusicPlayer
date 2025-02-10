@@ -25,9 +25,12 @@ public:
 
     void setwindow();
     void settitlecolumn();
-    void settitle(QString window_title);
     void setworkarea();
     void setcontrol();
+
+
+    void settitle(QString window_title);
+
 
 private:
     //界面相关
