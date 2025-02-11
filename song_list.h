@@ -2,6 +2,7 @@
 #define SONG_LIST_H
 
 #include <QObject>
+#include<QVector>
 
 class song_list : public QObject
 {
@@ -13,6 +14,13 @@ private:
     int list_num;
     //歌单名字
     QString list_name;
+    //歌单图标
+    QString list_pic;
+    //歌单介绍
+    QString list_info;
+    //歌曲编号列表
+    QVector<int> list_song;
+
 
 public:
     explicit song_list(QObject *parent = nullptr);

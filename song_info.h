@@ -27,6 +27,21 @@ private:
 public:
     explicit song_info(QObject *parent = nullptr);
 
+    void setSong(QString song_name,QString singer,QString song_filename,int song_time,QString song_pic = "");
+    int getsongid();
+    QString getsongname();
+    QString getsinger();
+    QString getsong_filename();
+    QString getsong_pic();
+    int getsong_time();
+    int getlast_time();
+
+    void setlast_time(int lasttime);
+
+
+
+
+
 signals:
 
 

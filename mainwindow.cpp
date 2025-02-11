@@ -188,7 +188,7 @@ void MainWindow::setcontrol()
     music_name->setText(QObject::tr("黑色毛衣-周杰伦"));
 
 
-
+    //设置进度条
     QVBoxLayout *slider_layout = new QVBoxLayout();
     slider_layout->setSpacing(0);
 
@@ -196,18 +196,18 @@ void MainWindow::setcontrol()
     slider->setMinimum(0);
     slider->setMaximum(100);
     slider->setStyleSheet(
-        "QSlider::groove:horizontal {"
+        "QSlider::groove:horizontal {"//设置轨道样式
         "border: 1px solid #999999;"
         "height: 8px;"
         "background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);"
-        "margin: 2px 0;"
+        "margin: 2px 0;"//设置上下边距
         "}"
-        "QSlider::handle:horizontal {"
+        "QSlider::handle:horizontal {"//设置滑块样式
         "background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #b4b4b4, stop:1 #8f8f8f);"
         "border: 1px solid #5c5c5c;"
         "width: 18px;"
         "margin: -2px 0;"
-        "border-radius: 3px;"
+        "border-radius: 3px;"//设置边角半径，使角看起来圆润
         "}"
     );
 
