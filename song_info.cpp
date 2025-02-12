@@ -4,7 +4,7 @@ song_info::song_info(QObject *parent)
     : QObject{parent}
 {}
 
-void song_info::setSong(QString song_name,QString singer,QString song_filename,int song_time,QString song_pic = ""){
+void song_info::setSong(QString song_name,QString singer,QString song_filename,int song_time,QString song_pic){
 
     //设置id
     this->song_name = song_name;

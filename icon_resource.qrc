@@ -9,5 +9,6 @@
         <file>icon/shunxu.png</file>
         <file>icon/suiji.png</file>
         <file>icon/voice.png</file>
+        <file>icon/music_demopic.jpg</file>
     </qresource>
 </RCC>

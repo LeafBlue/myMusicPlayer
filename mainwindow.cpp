@@ -11,6 +11,11 @@ MainWindow::MainWindow(QWidget *parent)
     work_area = nullptr;
     title_text = nullptr;
     control_area=nullptr;
+    music_name = nullptr;
+    cur_song = nullptr;
+    music_pic = nullptr;
+    nowtime = nullptr;
+    endtime = nullptr;
 
 
     setwindow();
@@ -98,6 +103,7 @@ void MainWindow::setworkarea()
     QVBoxLayout *right = new QVBoxLayout();
     right->setContentsMargins(0,0,0,0);
     right->setSpacing(0);
+    setright1(right);
     in_wid->addLayout(right,4);
 
     //定义一个滚动条组件
@@ -179,18 +185,33 @@ void MainWindow::setcontrol()
     music_info->setFixedSize(200,50);
     music_info->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
 
+    music_pic = new QLabel(music_info);
+    music_pic->setFixedSize(45,45);
+    music_pic->move(3,2);
+    music_pic->setScaledContents(true);
+    QPixmap music_img(":icon/music_demopic.jpg");
+    music_pic->setPixmap(music_img);
 
-    QLabel *music_name = new QLabel(music_info);
-    music_name->setFixedSize(200,50);
+
+    music_name = new QLabel(music_info);
+    music_name->setFixedSize(150,50);
+    music_name->move(50,0);
     music_name->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     music_name->setStyleSheet("color:white;font-size:15px;");
     music_name->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    music_name->setText(QObject::tr("黑色毛衣-周杰伦"));
+    music_name->setText("示例歌名-示例歌手");
 
 
     //设置进度条
-    QVBoxLayout *slider_layout = new QVBoxLayout();
-    slider_layout->setSpacing(0);
+    QHBoxLayout *slider_layout = new QHBoxLayout();
+    //slider_layout->setSpacing(0);
+
+    nowtime = new QLabel();
+    nowtime->setStyleSheet("color:yellow;font-size:10px;");
+    nowtime->setText("00:00");
+    slider_layout->addWidget(nowtime);
+
+
 
     QSlider *slider = new QSlider(Qt::Horizontal);
     slider->setMinimum(0);
@@ -213,6 +234,10 @@ void MainWindow::setcontrol()
 
     slider_layout->addWidget(slider);
 
+    endtime = new QLabel();
+    endtime->setStyleSheet("color:yellow;font-size:10px;");
+    endtime->setText("00:00");
+    slider_layout->addWidget(endtime);
 
     //布置按钮
     QHBoxLayout *btn_layout = new QHBoxLayout();
@@ -263,6 +288,110 @@ void MainWindow::setcontrol()
 
 }
 
+void MainWindow::setright1(QVBoxLayout *right)
+{
+    QWidget *r_main_info = new QWidget(center);
+    r_main_info->setFixedHeight(250);
+    r_main_info->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    r_main_info->setStyleSheet("border: 1px solid black;");
+    right->addWidget(r_main_info);
+
+
+
+    //构造一个滚动条
+    QScrollArea *scroll = new QScrollArea(center);
+    scroll->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    scroll->setWidgetResizable(true);
+    right->addWidget(scroll);
+
+    QWidget *inscroll_wid = new QWidget(scroll);
+    inscroll_wid->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    scroll->setWidget(inscroll_wid);
+
+    QVBoxLayout *table_list = new QVBoxLayout(inscroll_wid);
+    table_list->setContentsMargins(0,0,0,0);
+    table_list->setSpacing(0);
+
+    //创建表头
+    QHBoxLayout *head_layout = new QHBoxLayout();
+    head_layout->setContentsMargins(0,0,0,0);
+
+    for (int i = 0; i < 5; ++i) {
+        QLabel *label_head = new QLabel();
+        label_head->setAlignment(Qt::AlignCenter);
+        label_head->setFixedHeight(30);
+        label_head->setStyleSheet("border:1px solid gray;color:black;font-size:25px;font-weight: bold;");
+        if(i == 0){
+            label_head->setText("序号");
+            head_layout->addWidget(label_head,1);
+        }else if(i == 1){
+            label_head->setText("歌曲");
+            head_layout->addWidget(label_head,2);
+        }else if(i == 2){
+            label_head->setText("操作");
+            head_layout->addWidget(label_head,2);
+        }else if(i == 3){
+            label_head->setText("歌手");
+            head_layout->addWidget(label_head,2);
+        }else if(i == 4){
+            label_head->setText("收藏");
+            head_layout->addWidget(label_head,1);
+        }
+
+    }
+    table_list->addLayout(head_layout);
+
+    //在一个函数中单独处理列表内容
+    setlist1(table_list);
+    table_list->addStretch();
+}
+
+void MainWindow::setlist1(QVBoxLayout *right, song_list *songlist)
+{
+    bool iscolor = false;
+    for (int line = 0; line < 20; ++line) {
+        QString back_color = "";
+        if(iscolor){
+            back_color = "silver";
+            iscolor = false;
+        }else{
+            back_color = "white";
+            iscolor = true;
+        }
+
+        QHBoxLayout *row = new QHBoxLayout();
+        row->setContentsMargins(0,0,0,0);
+        for (int i = 0; i < 5; ++i) {
+            QLabel *label_head = new QLabel();
+            label_head->setAlignment(Qt::AlignCenter);
+            label_head->setFixedHeight(30);
+            label_head->setStyleSheet("border:1px solid lightgray;color:black;font-size:20px;background-color:"+back_color+";");
+            if(i == 0){
+                label_head->setText("1");
+                row->addWidget(label_head,1);
+            }else if(i == 1){
+                label_head->setText("示例歌名");
+                row->addWidget(label_head,2);
+            }else if(i == 2){
+                label_head->setText("操作");
+                row->addWidget(label_head,2);
+            }else if(i == 3){
+                label_head->setText("示例歌手");
+                row->addWidget(label_head,2);
+            }else if(i == 4){
+                label_head->setText("❤");
+                row->addWidget(label_head,1);
+            }
+        }
+        right->addLayout(row);
+    }
+}
+
+void MainWindow::setright2(QVBoxLayout *right)
+{
+
+}
+
 
 
 
@@ -275,6 +404,37 @@ void MainWindow::setcontrol()
 void MainWindow::settitle(QString window_title)
 {
     title_text->setText(window_title);
+}
+
+void MainWindow::set_songinfo()
+{
+    if(cur_song!=nullptr){
+        //设置歌曲信息
+        QPixmap music_img(":icon/music_demopic.jpg");
+        music_pic->setPixmap(cur_song->getsong_pic());
+        music_name->setText(cur_song->getsongname() + "-" + cur_song->getsinger());
+        //设置进度条时间
+        nowtime->setText(to_time(cur_song->getlast_time()));
+        endtime->setText(to_time(cur_song->getsong_time()));
+    }
+}
+
+//将秒转换为分秒
+QString MainWindow::to_time(int second_time)
+{
+    int minute = second_time/60;
+    int remainingSeconds =second_time%60;
+    //设定最小宽度为2，当位数不足是用0补齐
+    return QString("%1:%2").arg(minute,2,10,QChar('0')).arg(remainingSeconds,2,10,QChar('0'));
+}
+
+//将分秒转换为秒
+int MainWindow::of_time(QString minute_time)
+{
+    QStringList strs = minute_time.split(":");
+    int minutes = strs[0].toInt();
+    int seconds = strs[1].toInt();
+    return minutes * 60 + seconds;
 }
 
 

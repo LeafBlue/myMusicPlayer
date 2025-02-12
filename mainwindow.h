@@ -11,6 +11,12 @@
 #include<QFont>
 #include<QScrollArea>
 #include<QSlider>
+#include"file_tool.h"
+#include<QPixmap>
+#include<QTime>
+#include<QStringList>
+#include<QTableWidget>
+#include<QList>
 
 class MainWindow : public QMainWindow
 {
@@ -27,9 +33,17 @@ public:
     void settitlecolumn();
     void setworkarea();
     void setcontrol();
+    void setright1(QVBoxLayout *right);
+    void setlist1(QVBoxLayout *right,song_list* songlist = nullptr);
+
+    void setright2(QVBoxLayout *right);
 
 
     void settitle(QString window_title);
+    void set_songinfo();
+
+    QString to_time(int second_time);
+    int of_time(QString minute_time);
 
 
 private:
@@ -39,5 +53,12 @@ private:
     QHBoxLayout *work_area;
     QHBoxLayout *control_area;
     QLabel *title_text;
+    QLabel *music_name;
+    QLabel *music_pic;
+    QLabel *nowtime;
+    QLabel *endtime;
+
+    //当前音乐
+    song_info* cur_song;
 };
 #endif // MAINWINDOW_H
