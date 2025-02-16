@@ -4,28 +4,40 @@
 #include <QObject>
 #include"song_info.h"
 #include"song_list.h"
+#include<QDir>
 
 class file_tool : public QObject
 {
     Q_OBJECT
+private:
+    QString projectpath;
+    QString foldername;
+
+    QString songfile;
+    QString listfile;
 public:
     explicit file_tool(QObject *parent = nullptr);
 
-    //void save_allsong();
-    //创建
-    void create_allsongfile();
-    void create_songlistfile();
+    //创建文件
+    void create_infolder();
+
+    void create_songfile();
     void create_listfile();
 
-    //存储歌曲所有信息
-    void save_songinall(song_info& song);
-    //只存储歌曲编号
-    void save_songinlist(song_info& song,int list_num);
-    //存储歌单信息，开始时只导入所需音乐，只有查询时再导入歌单信息
-    void save_list();
+    void rewritesong(QVector<song_info>& songs);
+    QVector<song_info> select_song();
+
+    void rewritelist(QVector<song_list>& lists);
+    QVector<song_list> select_list();
 
 
 
+    void add_sl(int& list_id);
+    void delete_sl(int& listid);
+    void addin_sl(int& listid,int& songid);
+    void check_sl(int& listid,int& songid);//检查id是否已存在
+    void delin_sl(int& listid,int& songid);
+    QVector<int> select_listsong(int& listid,int& songid);
 
 
 signals:

@@ -28,13 +28,14 @@ public:
     explicit song_info(QObject *parent = nullptr);
 
     void setSong(QString song_name,QString singer,QString song_filename,int song_time,QString song_pic = "");
-    int getsongid();
-    QString getsongname();
-    QString getsinger();
-    QString getsong_filename();
-    QString getsong_pic();
-    int getsong_time();
-    int getlast_time();
+    void setSong(int song_id,QString song_name,QString singer,QString song_filename,int song_time,QString song_pic = "");
+    int getsongid()const;
+    QString getsongname()const;
+    QString getsinger()const;
+    QString getsong_filename()const;
+    QString getsong_pic()const;
+    int getsong_time()const;
+    int getlast_time()const;
 
     void setlast_time(int lasttime);
 

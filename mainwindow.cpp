@@ -16,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent)
     music_pic = nullptr;
     nowtime = nullptr;
     endtime = nullptr;
+    list_pic = nullptr;
+    list_name = nullptr;
 
 
     setwindow();
@@ -192,6 +194,17 @@ void MainWindow::setcontrol()
     QPixmap music_img(":icon/music_demopic.jpg");
     music_pic->setPixmap(music_img);
 
+    //做个遮罩处理图片
+    QBitmap mask(music_pic->size());
+    mask.fill(Qt::color0);
+    QPainter painter(&mask);
+    painter.setBrush(Qt::color1);
+    painter.setPen(Qt::NoPen);
+    painter.drawEllipse(QRect(0,0,music_pic->width(),music_pic->height()));
+    painter.end();
+    music_pic->setMask(mask);
+
+
 
     music_name = new QLabel(music_info);
     music_name->setFixedSize(150,50);
@@ -291,12 +304,44 @@ void MainWindow::setcontrol()
 void MainWindow::setright1(QVBoxLayout *right)
 {
     QWidget *r_main_info = new QWidget(center);
-    r_main_info->setFixedHeight(250);
+    r_main_info->setFixedHeight(200);
     r_main_info->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
-    r_main_info->setStyleSheet("border: 1px solid black;");
+    r_main_info->setStyleSheet("border: 1px solid black;background-color:lightgray;");
+
+    //这里展示歌单资料
+    list_pic = new QLabel(r_main_info);
+
+    list_pic->setFixedSize(100,100);
+    list_pic->move(50,50);
+    list_pic->setScaledContents(true);
+    QPixmap list_img(":icon/music_demopic.jpg");
+    list_pic->setPixmap(list_img);
+    //做个遮罩处理图片
+    QBitmap mask(list_pic->size());
+    mask.fill(Qt::color0);
+    QPainter painter(&mask);
+    painter.setBrush(Qt::color1);
+    painter.setPen(Qt::NoPen);
+    painter.drawEllipse(QRect(0,0,list_pic->width(),list_pic->height()));
+    painter.end();
+    list_pic->setMask(mask);
+
+    //做个显示文字的
+    //就这样显示一下吧，反正也没有最大化
+    list_name = new QLabel(r_main_info);
+    list_name->setFixedSize(500,100);
+    list_name->move(200,50);
+    list_name->setStyleSheet("border:none;color:white;");
+    list_name->setText("<h1>示例歌单名</h1><p style='font-size:16px;'>"
+                       "这是我个人收集的歌单，欢迎大家一起听音乐交流。"
+                       "</p>");
+
+
+
+    //这里做一个动画效果的梦
+
+
     right->addWidget(r_main_info);
-
-
 
     //构造一个滚动条
     QScrollArea *scroll = new QScrollArea(center);
@@ -346,47 +391,6 @@ void MainWindow::setright1(QVBoxLayout *right)
     table_list->addStretch();
 }
 
-void MainWindow::setlist1(QVBoxLayout *right, song_list *songlist)
-{
-    bool iscolor = false;
-    for (int line = 0; line < 20; ++line) {
-        QString back_color = "";
-        if(iscolor){
-            back_color = "silver";
-            iscolor = false;
-        }else{
-            back_color = "white";
-            iscolor = true;
-        }
-
-        QHBoxLayout *row = new QHBoxLayout();
-        row->setContentsMargins(0,0,0,0);
-        for (int i = 0; i < 5; ++i) {
-            QLabel *label_head = new QLabel();
-            label_head->setAlignment(Qt::AlignCenter);
-            label_head->setFixedHeight(30);
-            label_head->setStyleSheet("border:1px solid lightgray;color:black;font-size:20px;background-color:"+back_color+";");
-            if(i == 0){
-                label_head->setText("1");
-                row->addWidget(label_head,1);
-            }else if(i == 1){
-                label_head->setText("示例歌名");
-                row->addWidget(label_head,2);
-            }else if(i == 2){
-                label_head->setText("操作");
-                row->addWidget(label_head,2);
-            }else if(i == 3){
-                label_head->setText("示例歌手");
-                row->addWidget(label_head,2);
-            }else if(i == 4){
-                label_head->setText("❤");
-                row->addWidget(label_head,1);
-            }
-        }
-        right->addLayout(row);
-    }
-}
-
 void MainWindow::setright2(QVBoxLayout *right)
 {
 
@@ -416,6 +420,59 @@ void MainWindow::set_songinfo()
         //设置进度条时间
         nowtime->setText(to_time(cur_song->getlast_time()));
         endtime->setText(to_time(cur_song->getsong_time()));
+    }
+}
+
+//设置歌单信息
+void MainWindow::set_songlist_info()
+{
+    QPixmap list_img(":icon/music_demopic.jpg");
+    list_pic->setPixmap(list_img);
+    list_name->setText("<h1>示例歌单名</h1><p style='font-size:16px;'>"
+                       "这是我个人收集的歌单，欢迎大家一起听音乐交流。"
+                       "</p>");
+}
+
+void MainWindow::setlist1(QVBoxLayout *right, song_list *songlist)
+{
+    bool iscolor = false;
+    if(songlist!=nullptr){
+        for (int line = 0; line < songlist->getlist_song().size(); ++line) {
+            QString back_color = "";
+            if(iscolor){
+                back_color = "silver";
+                iscolor = false;
+            }else{
+                back_color = "white";
+                iscolor = true;
+            }
+
+            QHBoxLayout *row = new QHBoxLayout();
+            row->setContentsMargins(0,0,0,0);
+            for (int i = 0; i < 5; ++i) {
+                QLabel *label_head = new QLabel();
+                label_head->setAlignment(Qt::AlignCenter);
+                label_head->setFixedHeight(30);
+                label_head->setStyleSheet("border:1px solid lightgray;color:black;font-size:20px;background-color:"+back_color+";");
+                if(i == 0){
+                    label_head->setText("1");
+                    row->addWidget(label_head,1);
+                }else if(i == 1){
+                    label_head->setText("示例歌名");
+                    row->addWidget(label_head,2);
+                }else if(i == 2){
+                    label_head->setText("操作");
+                    row->addWidget(label_head,2);
+                }else if(i == 3){
+                    label_head->setText("示例歌手");
+                    row->addWidget(label_head,2);
+                }else if(i == 4){
+                    label_head->setText("❤");
+                    row->addWidget(label_head,1);
+                }
+            }
+            right->addLayout(row);
+        }
     }
 }
 

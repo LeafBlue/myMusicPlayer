@@ -17,6 +17,8 @@
 #include<QStringList>
 #include<QTableWidget>
 #include<QList>
+#include<QBitmap>
+#include<QPainter>
 
 class MainWindow : public QMainWindow
 {
@@ -33,14 +35,17 @@ public:
     void settitlecolumn();
     void setworkarea();
     void setcontrol();
+
     void setright1(QVBoxLayout *right);
     void setlist1(QVBoxLayout *right,song_list* songlist = nullptr);
+
 
     void setright2(QVBoxLayout *right);
 
 
     void settitle(QString window_title);
     void set_songinfo();
+    void set_songlist_info();
 
     QString to_time(int second_time);
     int of_time(QString minute_time);
@@ -57,6 +62,8 @@ private:
     QLabel *music_pic;
     QLabel *nowtime;
     QLabel *endtime;
+    QLabel *list_pic;
+    QLabel *list_name;
 
     //当前音乐
     song_info* cur_song;
