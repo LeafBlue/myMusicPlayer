@@ -31,13 +31,11 @@ public:
     QVector<song_list> select_list();
 
 
+    void createsonglist(int& listid);
+    void rewritesonglist(int& listid,QVector<int> songids);
+    QVector<int> getsonglist(int& listid);
+    void deletesonglist(int& listid);
 
-    void add_sl(int& list_id);
-    void delete_sl(int& listid);
-    void addin_sl(int& listid,int& songid);
-    void check_sl(int& listid,int& songid);//检查id是否已存在
-    void delin_sl(int& listid,int& songid);
-    QVector<int> select_listsong(int& listid,int& songid);
 
 
 signals:

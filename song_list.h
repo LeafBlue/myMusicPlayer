@@ -50,7 +50,14 @@ public:
 
     QVector<int>& getlist_song();
 
-    int get
+    int getlistnum();
+    QString getlistname();
+    QString getlistpic();
+    QString getlistinfo();
+
+    void setlist_v(QVector<int>& v);
+    void setlist(int list_num,QString& list_name,QString& list_pic,QString& list_info);
+
 
 
 signals:
