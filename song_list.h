@@ -33,7 +33,7 @@ class song_list
 private:
     //歌单文件存储在项目路径下指定文件夹内，可能需要维护一个歌单统计文件
 
-    //歌单编号//默认0为全部音乐，1为本地音乐，2为我的收藏，后面是歌单
+    //歌单编号//默认0 我的收藏，1 本地音乐，2 最近播放，3 全部音乐
     int list_num;
     //歌单名字
     QString list_name;
@@ -57,8 +57,6 @@ public:
 
     void setlist_v(QVector<int>& v);
     void setlist(int list_num,QString& list_name,QString& list_pic,QString& list_info);
-
-
 
 };
 

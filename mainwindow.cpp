@@ -30,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent)
     setworkarea();
     setcontrol();
 
+
+
 }
 
 MainWindow::~MainWindow() {}
@@ -128,56 +130,55 @@ void MainWindow::setworkarea()
     in_scroolwid->setSpacing(0);
     for (int i = 0; i < 6; ++i) {
 
-        QLabel *left_label = new QLabel(in_scroll);
+
         if(i == 0){
+            QLabel *left_label = new QLabel(in_scroll);
+
             left_label->setText("我的音乐");
             left_label->setStyleSheet("border:1px solid lightgray;font-size:16px;color:gray;");
             left_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
             left_label->setFixedHeight(50);
             left_label->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+            in_scroolwid->addWidget(left_label);
         }
         else if(i == 5){
+            QLabel *left_label = new QLabel(in_scroll);
+
             left_label->setText("创建的歌单");
             left_label->setStyleSheet("border:1px solid lightgray;font-size:16px;color:gray;");
             left_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
             left_label->setFixedHeight(50);
             left_label->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+            in_scroolwid->addWidget(left_label);
         }
         else{
+            songlistlabel *thislabel = new songlistlabel();
             //在此处为特别列表设置特别id
             if(i == 1){
-                left_label->setProperty("listid",0);
-                left_label->setText("  我的收藏");
+                thislabel->setText("  我的收藏");
             }else if(i == 2){
-                left_label->setProperty("listid",1);
-                left_label->setText("  本地音乐");
+                thislabel->setText("  本地音乐");
             }else if(i == 3){
-                left_label->setProperty("listid",2);
-                left_label->setText("  最近播放");
+                thislabel->setText("  最近播放");
             }else if(i == 4){
-                left_label->setProperty("listid",3);
-                left_label->setText("  全部音乐");
+                thislabel->setText("  全部音乐");
             }
-            left_label->setStyleSheet("border:1px solid lightgray;font-size:18px;color:black;font-weight: bold;");
-            left_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-            left_label->setFixedHeight(50);
-            left_label->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+            thislabel->setsonglistid(i - 1);
+            connect(thislabel,&songlistlabel::leftclick,this,[this](){
+                //执行左键点击函数
+                setright1();
+            });
+            connect(thislabel,&songlistlabel::rightclick,this,[this](){
+                //右键点击
+
+            });
+            in_scroolwid->addWidget(thislabel);
         }
-        in_scroolwid->addWidget(left_label);
+
     }
 
-    set_songlist_menu(QVBoxLayout *in_scroolwid);
-    /*
-    for (int i = 0; i < 20; ++i) {
-        QLabel *left_label = new QLabel(in_scroll);
-        left_label->setText("  歌单示例");
-        left_label->setStyleSheet("border:1px solid lightgray;font-size:18px;color:black;font-weight: bold;");
-        left_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        left_label->setFixedHeight(50);
-        left_label->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    set_songlist_menu(in_scroolwid,in_scroll);
 
-        in_scroolwid->addWidget(left_label);
-    }*/
     //为了避免label不够时呈现出均匀分布，设置一个占位将它们挤在上面
     in_scroolwid->addStretch();
 }
@@ -282,17 +283,17 @@ void MainWindow::setcontrol()
         //每次调用setStyleSheet都会覆盖上一次的setStyleSheet，所以尽可能整合为一个
         btn1->setStyleSheet("QPushButton {"
                         "background-color: SlateGray;color:silver;font-size:30px;font-weight: bold;border:0.5px solid DimGray; "
-                        "background-image:" + backgroundimg + ";"
+                        "border-image:" + backgroundimg + ";"
                         "background-repeat:no-repeat;"
                         "background-position:center;"
                         "}"
                         "QPushButton:hover {"
-                        "background-color: DarkSlateGray;color:silver;font-size:30px;font-weight: bold;border:1px solid DimGray; "
+                        "background-color: DarkSlateGray;color:silver;font-size:30px;font-weight: bold;border:0.5px solid DimGray; "
                         "background-repeat:no-repeat;"
                         "background-position:center;"
                         "}"
                         "QPushButton:pressed {"
-                        "background-color: DarkSlateGray;color:silver;font-size:30px;font-weight: bold;border:3px solid DimGray; "
+                        "background-color: DarkSlateGray;color:silver;font-size:25px;font-weight: bold;border:2px solid LightGray; "
                         "background-repeat:no-repeat;"
                         "background-position:center;"
                         "}");
@@ -312,12 +313,12 @@ void MainWindow::setcontrol()
 
 }
 
-void MainWindow::setright1(QVBoxLayout *right)
+void MainWindow::setright1(QVBoxLayout *right,int songlist_id)
 {
     QWidget *r_main_info = new QWidget(center);
-    r_main_info->setFixedHeight(200);
+    r_main_info->setFixedHeight(180);
     r_main_info->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
-    r_main_info->setStyleSheet("border: 1px solid black;background-color:lightgray;");
+    r_main_info->setStyleSheet("background-color:lightgray;");
 
     //这里展示歌单资料
     list_pic = new QLabel(r_main_info);
@@ -353,6 +354,35 @@ void MainWindow::setright1(QVBoxLayout *right)
 
 
     right->addWidget(r_main_info);
+
+    //需要加几个按钮，作为对歌单的处理
+    QWidget *r_list_btn = new QWidget(center);
+    r_list_btn->setFixedHeight(50);
+    r_list_btn->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    r_list_btn->setStyleSheet("background-color:lightgray;");
+    QHBoxLayout *list_btn_layout = new QHBoxLayout(r_list_btn);
+
+
+    list_btn_layout->addSpacing(50);
+    for (int btnnum = 0; btnnum < 3; ++btnnum) {
+        QPushButton *btn1 = new QPushButton();
+        if(btnnum == 0){
+            btn1->setText(QObject::tr("添加音乐"));
+        }else if(btnnum == 1){
+            btn1->setText(QObject::tr("播放全部"));
+        }else if(btnnum == 2){
+            btn1->setText(QObject::tr("批量操作"));
+        }
+        btn1->setFixedSize(100,30);
+        btn1->setStyleSheet("QPushButton {background-color: SlateGray;color:silver;font-size:20px;font-weight: bold;border:0.5px solid DimGray; }"
+                            "QPushButton:hover {background-color: DarkSlateGray;color:silver;font-size:20px;font-weight: bold;border:0.5px solid DimGray; }"
+                            "QPushButton:pressed {background-color: DarkSlateGray;color:silver;font-size:18px;font-weight: bold;border:2px solid DimGray; }");
+
+
+        list_btn_layout->addWidget(btn1);
+    }
+    list_btn_layout->addStretch();
+    right->addWidget(r_list_btn);
 
     //构造一个滚动条
     QScrollArea *scroll = new QScrollArea(center);
@@ -444,9 +474,9 @@ void MainWindow::set_songlist_info()
                        "</p>");
 }
 
-void MainWindow::set_songlist_menu(QVBoxLayout *in_scroolwid)
+void MainWindow::set_songlist_menu(QVBoxLayout *in_scroolwid,QWidget *in_scroll)
 {
-    songlist_v = file_tool.select_list();
+    songlist_v = filetool->select_list();
     for (int i = 0; i < songlist_v.size(); ++i) {
         QLabel *left_label = new QLabel(in_scroll);
         left_label->setProperty("listid",songlist_v.at(i).getlistnum());

@@ -11,7 +11,7 @@
 #include<QFont>
 #include<QScrollArea>
 #include<QSlider>
-#include"song_tool.h"
+
 #include<QPixmap>
 #include<QTime>
 #include<QStringList>
@@ -19,6 +19,9 @@
 #include<QList>
 #include<QBitmap>
 #include<QPainter>
+
+#include"song_tool.h"
+#include"songlistlabel.h"
 
 class MainWindow : public QMainWindow
 {
@@ -36,7 +39,7 @@ public:
     void setworkarea();
     void setcontrol();
 
-    void setright1(QVBoxLayout *right);
+    void setright1(QVBoxLayout *right,int songlist_id = 0);
     void setlist1(QVBoxLayout *right,song_list* songlist = nullptr);
 
 
@@ -46,7 +49,7 @@ public:
     void settitle(QString window_title);
     void set_songinfo();
     void set_songlist_info();
-    void set_songlist_menu(QVBoxLayout *in_scroolwid);
+    void set_songlist_menu(QVBoxLayout *in_scroolwid,QWidget *in_scroll);
 
     QString to_time(int second_time);
     int of_time(QString minute_time);

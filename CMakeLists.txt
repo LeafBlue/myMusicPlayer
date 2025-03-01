@@ -30,6 +30,8 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         icon/music_demopic.jpg
         song_tool.h
         song_tool.cpp
+        songlistlabel.h
+        songlistlabel.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET myMusicPlayer APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
