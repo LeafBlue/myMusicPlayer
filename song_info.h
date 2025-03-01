@@ -1,11 +1,10 @@
 #ifndef SONG_INFO_H
 #define SONG_INFO_H
+#include<QString>
 
-#include <QObject>
-
-class song_info : public QObject
+class song_info
 {
-    Q_OBJECT
+
 private:
     //音乐编号
     int song_id;
@@ -25,7 +24,7 @@ private:
 
 
 public:
-    explicit song_info(QObject *parent = nullptr);
+    explicit song_info();
 
     void setSong(QString song_name,QString singer,QString song_filename,int song_time,QString song_pic = "");
     void setSong(int song_id,QString song_name,QString singer,QString song_filename,int song_time,QString song_pic = "");
@@ -38,15 +37,6 @@ public:
     int getlast_time()const;
 
     void setlast_time(int lasttime);
-
-
-
-
-
-signals:
-
-
-
 };
 
 #endif // SONG_INFO_H

@@ -1,8 +1,8 @@
 #ifndef SONG_LIST_H
 #define SONG_LIST_H
 
-#include <QObject>
 #include<QVector>
+#include<QString>
 
 /*
 在项目目录下创建一个文件夹 ，就叫songlist
@@ -27,9 +27,9 @@ songlist.csv，用来存储所有歌单信息
 
 */
 
-class song_list : public QObject
+class song_list
 {
-    Q_OBJECT
+
 private:
     //歌单文件存储在项目路径下指定文件夹内，可能需要维护一个歌单统计文件
 
@@ -46,21 +46,20 @@ private:
 
 
 public:
-    explicit song_list(QObject *parent = nullptr);
+    explicit song_list();
 
     QVector<int>& getlist_song();
 
-    int getlistnum();
-    QString getlistname();
-    QString getlistpic();
-    QString getlistinfo();
+    int getlistnum() const;
+    QString getlistname() const;
+    QString getlistpic() const;
+    QString getlistinfo() const;
 
     void setlist_v(QVector<int>& v);
     void setlist(int list_num,QString& list_name,QString& list_pic,QString& list_info);
 
 
 
-signals:
 };
 
 #endif // SONG_LIST_H

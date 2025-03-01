@@ -1,7 +1,6 @@
 #include "song_info.h"
 
-song_info::song_info(QObject *parent)
-    : QObject{parent}
+song_info::song_info()
 {}
 
 void song_info::setSong(QString song_name,QString singer,QString song_filename,int song_time,QString song_pic){

@@ -11,7 +11,7 @@
 #include<QFont>
 #include<QScrollArea>
 #include<QSlider>
-#include"file_tool.h"
+#include"song_tool.h"
 #include<QPixmap>
 #include<QTime>
 #include<QStringList>
@@ -46,6 +46,7 @@ public:
     void settitle(QString window_title);
     void set_songinfo();
     void set_songlist_info();
+    void set_songlist_menu(QVBoxLayout *in_scroolwid);
 
     QString to_time(int second_time);
     int of_time(QString minute_time);
@@ -67,5 +68,11 @@ private:
 
     //当前音乐
     song_info* cur_song;
+
+    file_tool *filetool;
+
+    //存储文件中读到的数据
+    QVector<song_list> songlist_v;
+
 };
 #endif // MAINWINDOW_H

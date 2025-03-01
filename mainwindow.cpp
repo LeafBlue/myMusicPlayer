@@ -19,6 +19,10 @@ MainWindow::MainWindow(QWidget *parent)
     list_pic = nullptr;
     list_name = nullptr;
 
+    //当前音乐
+    cur_song = nullptr;
+    filetool = new file_tool();
+
 
     setwindow();
     settitlecolumn();
@@ -140,13 +144,18 @@ void MainWindow::setworkarea()
             left_label->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
         }
         else{
+            //在此处为特别列表设置特别id
             if(i == 1){
+                left_label->setProperty("listid",0);
                 left_label->setText("  我的收藏");
             }else if(i == 2){
+                left_label->setProperty("listid",1);
                 left_label->setText("  本地音乐");
             }else if(i == 3){
+                left_label->setProperty("listid",2);
                 left_label->setText("  最近播放");
             }else if(i == 4){
+                left_label->setProperty("listid",3);
                 left_label->setText("  全部音乐");
             }
             left_label->setStyleSheet("border:1px solid lightgray;font-size:18px;color:black;font-weight: bold;");
@@ -156,6 +165,8 @@ void MainWindow::setworkarea()
         }
         in_scroolwid->addWidget(left_label);
     }
+
+    set_songlist_menu(QVBoxLayout *in_scroolwid);
     /*
     for (int i = 0; i < 20; ++i) {
         QLabel *left_label = new QLabel(in_scroll);
@@ -431,6 +442,22 @@ void MainWindow::set_songlist_info()
     list_name->setText("<h1>示例歌单名</h1><p style='font-size:16px;'>"
                        "这是我个人收集的歌单，欢迎大家一起听音乐交流。"
                        "</p>");
+}
+
+void MainWindow::set_songlist_menu(QVBoxLayout *in_scroolwid)
+{
+    songlist_v = file_tool.select_list();
+    for (int i = 0; i < songlist_v.size(); ++i) {
+        QLabel *left_label = new QLabel(in_scroll);
+        left_label->setProperty("listid",songlist_v.at(i).getlistnum());
+        left_label->setText("  " + songlist_v.at(i).getlistname());
+        left_label->setStyleSheet("border:1px solid lightgray;font-size:18px;color:black;font-weight: bold;");
+        left_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+        left_label->setFixedHeight(50);
+        left_label->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+
+        in_scroolwid->addWidget(left_label);
+    }
 }
 
 void MainWindow::setlist1(QVBoxLayout *right, song_list *songlist)

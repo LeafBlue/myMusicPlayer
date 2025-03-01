@@ -1,7 +1,6 @@
 #include "song_list.h"
 
-song_list::song_list(QObject *parent)
-    : QObject{parent}
+song_list::song_list()
 {}
 
 QVector<int> &song_list::getlist_song()
@@ -10,21 +9,21 @@ QVector<int> &song_list::getlist_song()
 }
 
 
-int song_list::getlistnum(){
+int song_list::getlistnum() const{
     return this->list_num;
 }
-QString song_list::getlistname(){
+QString song_list::getlistname() const{
     return this->list_name;
 }
-QString song_list::getlistpic(){
+QString song_list::getlistpic() const{
     return this->list_pic;
 }
-QString song_list::getlistinfo(){
+QString song_list::getlistinfo() const{
     return this->list_info;
 }
 
 void song_list::setlist_v(QVector<int>& v){
-    this->song_list = v;
+    this->list_song = v;
 }
 void song_list::setlist(int list_num,QString& list_name,QString& list_pic,QString& list_info){
     this->list_num = list_num;

@@ -5,6 +5,7 @@
 #include"song_info.h"
 #include"song_list.h"
 #include<QDir>
+#include<QStringList>
 
 class file_tool : public QObject
 {
