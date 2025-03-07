@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     cur_song = nullptr;
     filetool = new file_tool();
 
+    get_map_data();
+    create_files();
 
     setwindow();
     settitlecolumn();
@@ -35,6 +37,9 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 MainWindow::~MainWindow() {}
+
+
+
 //--------------------------------------------------------------------绘制界面 开始--------------------------------------------------------------------
 void MainWindow::setwindow()
 {
@@ -164,9 +169,9 @@ void MainWindow::setworkarea()
                 thislabel->setText("  全部音乐");
             }
             thislabel->setsonglistid(i - 1);
-            connect(thislabel,&songlistlabel::leftclick,this,[this](){
+            connect(thislabel,&songlistlabel::leftclick,this,[this,thislabel,right](){
                 //执行左键点击函数
-                setright1();
+                setright1(right,thislabel->getsonglistid());
             });
             connect(thislabel,&songlistlabel::rightclick,this,[this](){
                 //右键点击
@@ -315,6 +320,11 @@ void MainWindow::setcontrol()
 
 void MainWindow::setright1(QVBoxLayout *right,int songlist_id)
 {
+    //获得这个歌单的基本信息
+    song_list* this_songlist = getsonglistbyid(songlist_v,songlist_id);
+
+
+
     QWidget *r_main_info = new QWidget(center);
     r_main_info->setFixedHeight(180);
     r_main_info->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
@@ -326,8 +336,16 @@ void MainWindow::setright1(QVBoxLayout *right,int songlist_id)
     list_pic->setFixedSize(100,100);
     list_pic->move(50,50);
     list_pic->setScaledContents(true);
-    QPixmap list_img(":icon/music_demopic.jpg");
-    list_pic->setPixmap(list_img);
+    if(this_songlist != nullptr && this_songlist->getlistpic().size()>0){
+        QPixmap list_img(this_songlist->getlistpic());
+        list_pic->setPixmap(list_img);
+    }else{
+        QPixmap list_img(":icon/music_demopic.jpg");
+        list_pic->setPixmap(list_img);
+    }
+
+
+
     //做个遮罩处理图片
     QBitmap mask(list_pic->size());
     mask.fill(Qt::color0);
@@ -344,9 +362,14 @@ void MainWindow::setright1(QVBoxLayout *right,int songlist_id)
     list_name->setFixedSize(500,100);
     list_name->move(200,50);
     list_name->setStyleSheet("border:none;color:white;");
-    list_name->setText("<h1>示例歌单名</h1><p style='font-size:16px;'>"
-                       "这是我个人收集的歌单，欢迎大家一起听音乐交流。"
-                       "</p>");
+
+    QString songlistname = "新建歌单";
+    QString songlistinfo = "该歌单很神秘，没有任何介绍";
+    if(this_songlist != nullptr){
+        songlistname = this_songlist->getlistname();
+        songlistinfo = this_songlist->getlistinfo();
+    }
+    list_name->setText(QString("<h1>%1</h1><p style='font-size:16px;'>%2</p>").arg(songlistname).arg(songlistinfo));
 
 
 
@@ -428,14 +451,12 @@ void MainWindow::setright1(QVBoxLayout *right,int songlist_id)
     table_list->addLayout(head_layout);
 
     //在一个函数中单独处理列表内容
-    setlist1(table_list);
+    if(this_songlist != nullptr){
+        setlist1(table_list,this_songlist);
+    }
     table_list->addStretch();
 }
 
-void MainWindow::setright2(QVBoxLayout *right)
-{
-
-}
 
 
 
@@ -477,24 +498,56 @@ void MainWindow::set_songlist_info()
 void MainWindow::set_songlist_menu(QVBoxLayout *in_scroolwid,QWidget *in_scroll)
 {
     songlist_v = filetool->select_list();
-    for (int i = 0; i < songlist_v.size(); ++i) {
-        QLabel *left_label = new QLabel(in_scroll);
-        left_label->setProperty("listid",songlist_v.at(i).getlistnum());
-        left_label->setText("  " + songlist_v.at(i).getlistname());
-        left_label->setStyleSheet("border:1px solid lightgray;font-size:18px;color:black;font-weight: bold;");
-        left_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        left_label->setFixedHeight(50);
-        left_label->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
+    if(songlist_v.size()>4){
+        for (int i = 4; i < songlist_v.size(); ++i) {
+            QLabel *left_label = new QLabel(in_scroll);
+            left_label->setProperty("listid",songlist_v.at(i).getlistnum());
+            left_label->setText("  " + songlist_v.at(i).getlistname());
+            left_label->setStyleSheet("border:1px solid lightgray;font-size:18px;color:black;font-weight: bold;");
+            left_label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+            left_label->setFixedHeight(50);
+            left_label->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
 
-        in_scroolwid->addWidget(left_label);
+            in_scroolwid->addWidget(left_label);
+        }
     }
+    //只会执行一次
+    if(songlist_v.size() == 0){
+        //增加基础列表到文件：0 我的收藏，1 本地音乐 2 最近播放 3 全部音乐
+        song_list song1;
+        song1.setlist(0,"我的收藏","","");
+        songlist_v.push_back(song1);
+        song_list song2;
+        song2.setlist(1,"本地音乐","","");
+        songlist_v.push_back(song2);
+        song_list song3;
+        song3.setlist(2,"最近播放","","");
+        songlist_v.push_back(song3);
+        song_list song4;
+        song4.setlist(3,"全部音乐","","");
+        songlist_v.push_back(song4);
+
+        filetool->rewritelist(songlist_v);
+        songlist_v = filetool->select_list();
+
+        filetool->createsonglist(0);
+        filetool->createsonglist(1);
+        filetool->createsonglist(2);
+        filetool->createsonglist(3);
+    }
+
 }
 
 void MainWindow::setlist1(QVBoxLayout *right, song_list *songlist)
 {
     bool iscolor = false;
     if(songlist!=nullptr){
-        for (int line = 0; line < songlist->getlist_song().size(); ++line) {
+       int this_songlistid = songlist->getlistnum();
+       QVector<int> song_ids = filetool->getsonglist(this_songlistid);
+
+        for (int line = 0; line < song_ids.size(); ++line) {
+           song_info cur_song = map[song_ids[line]];
+
             QString back_color = "";
             if(iscolor){
                 back_color = "silver";
@@ -506,24 +559,30 @@ void MainWindow::setlist1(QVBoxLayout *right, song_list *songlist)
 
             QHBoxLayout *row = new QHBoxLayout();
             row->setContentsMargins(0,0,0,0);
+
+
             for (int i = 0; i < 5; ++i) {
                 QLabel *label_head = new QLabel();
                 label_head->setAlignment(Qt::AlignCenter);
                 label_head->setFixedHeight(30);
                 label_head->setStyleSheet("border:1px solid lightgray;color:black;font-size:20px;background-color:"+back_color+";");
+                //这里不能直接存储自定义对象
+                label_head->setProperty("songlist_song",cur_song.getsongid());
                 if(i == 0){
-                    label_head->setText("1");
+                    label_head->setText(QString::number(cur_song.getsongid()));
                     row->addWidget(label_head,1);
                 }else if(i == 1){
-                    label_head->setText("示例歌名");
+                    label_head->setText(cur_song.getsongname());
                     row->addWidget(label_head,2);
                 }else if(i == 2){
+                    //此功能待完善
                     label_head->setText("操作");
                     row->addWidget(label_head,2);
                 }else if(i == 3){
-                    label_head->setText("示例歌手");
+                    label_head->setText(cur_song.getsinger());
                     row->addWidget(label_head,2);
                 }else if(i == 4){
+                    //此功能待完善
                     label_head->setText("❤");
                     row->addWidget(label_head,1);
                 }
@@ -557,11 +616,24 @@ int MainWindow::of_time(QString minute_time)
 
 
 
+
+
 //--------------------------------------------------------------------动态界面 结束--------------------------------------------------------------------
 
 
 //--------------------------------------------------------------------逻辑相关 开始--------------------------------------------------------------------
+//取到全局变量数据
+void MainWindow::get_map_data()
+{
+    map = filetool->select_song();
+}
 
+void MainWindow::create_files()
+{
+    filetool->create_infolder();
+    filetool->create_songfile();
+    filetool->create_listfile();
+}
 
 //--------------------------------------------------------------------逻辑相关 结束--------------------------------------------------------------------
 

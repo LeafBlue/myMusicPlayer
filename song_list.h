@@ -3,7 +3,7 @@
 
 #include<QVector>
 #include<QString>
-
+#include"song_info.h"
 /*
 在项目目录下创建一个文件夹 ，就叫songlist
 内部存储csv文件
@@ -41,22 +41,18 @@ private:
     QString list_pic;
     //歌单介绍
     QString list_info;
-    //歌曲编号列表
-    QVector<int> list_song;
 
 
 public:
     explicit song_list();
 
-    QVector<int>& getlist_song();
 
     int getlistnum() const;
     QString getlistname() const;
     QString getlistpic() const;
     QString getlistinfo() const;
 
-    void setlist_v(QVector<int>& v);
-    void setlist(int list_num,QString& list_name,QString& list_pic,QString& list_info);
+    void setlist(int list_num,const QString& list_name,const QString& list_pic,const QString& list_info);
 
 };
 

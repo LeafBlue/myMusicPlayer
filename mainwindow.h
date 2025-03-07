@@ -39,11 +39,8 @@ public:
     void setworkarea();
     void setcontrol();
 
-    void setright1(QVBoxLayout *right,int songlist_id = 0);
+    void setright1(QVBoxLayout *right,int songlist_id = 3);
     void setlist1(QVBoxLayout *right,song_list* songlist = nullptr);
-
-
-    void setright2(QVBoxLayout *right);
 
 
     void settitle(QString window_title);
@@ -54,6 +51,10 @@ public:
     QString to_time(int second_time);
     int of_time(QString minute_time);
 
+    //进入程序加载
+    void get_map_data();
+    //创建文件
+    void create_files();
 
 private:
     //界面相关
@@ -72,10 +73,16 @@ private:
     //当前音乐
     song_info* cur_song;
 
+    //文件工具
     file_tool *filetool;
 
+    //全局变量，存储所有歌曲信息
+    QMap<int,song_info> map;
     //存储文件中读到的数据
+    //歌单列表
     QVector<song_list> songlist_v;
+
+
 
 };
 #endif // MAINWINDOW_H
