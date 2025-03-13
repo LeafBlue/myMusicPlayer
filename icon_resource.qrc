@@ -10,5 +10,6 @@
         <file>icon/suiji.png</file>
         <file>icon/voice.png</file>
         <file>icon/music_demopic.jpg</file>
+        <file>icon/bg_1.jpg</file>
     </qresource>
 </RCC>

@@ -25,14 +25,20 @@ void file_tool::create_infolder(){
 //创建song.csv用来存放所有歌曲
 void file_tool::create_songfile(){
     QFile file(songfile);
-    if(!file.open(QIODevice::WriteOnly|QIODevice::Text)){
+    if(file.exists()){
+        return;
+    }
+    if(!file.open(QIODevice::Append|QIODevice::Text)){
         return;
     }
     file.close();
 }
 void file_tool::create_listfile(){
     QFile file(listfile);
-    if(!file.open(QIODevice::WriteOnly|QIODevice::Text)){
+    if(file.exists()){
+        return;
+    }
+    if(!file.open(QIODevice::Append|QIODevice::Text)){
         return;
     }
     file.close();
@@ -48,7 +54,12 @@ void file_tool::rewritesong(QMap<int,song_info>& songs){
     for(auto it = songs.begin();it != songs.end();++it){
         song_info& song = it.value();
         QStringList row;
-        row<<QString::number(song.getsongid())<<song.getsongname()<<song.getsinger()<<song.getsong_filename()<<song.getsong_pic()<<QString::number(song.getsong_time());
+        row<<QString::number(song.getsongid())
+            <<escapeCsvField(song.getsongname())
+            <<escapeCsvField(song.getsinger())
+            <<escapeCsvField(song.getsong_filename())
+            <<escapeCsvField(song.getsong_pic())
+            <<QString::number(song.getsong_time());
         out<<row.join(",")<<"\n";
 
     }
@@ -67,12 +78,53 @@ QMap<int,song_info> file_tool::select_song(){
         QString line = in.readLine();
         QStringList list = line.split(",");
         song_info song;
-        song.setSong(list[0].toInt(),list[1],list[2],list[3],list[5].toInt(),list[4]);
+        song.setSong(list[0].toInt(),
+                     unescapeCsvField(list[1]),
+                     unescapeCsvField(list[2]),
+                     unescapeCsvField(list[3]),
+                     list[5].toInt(),
+                     unescapeCsvField(list[4])
+                     );
         map.insert(list[0].toInt(),song);
     }
     file.close();
     return map;
 }
+//向存储歌曲的文件末尾增加一条数据
+void file_tool::writesong(song_info& song){
+    QFile file(songfile);
+    if(!file.open(QIODevice::Append|QIODevice::Text)){
+        return;
+    }
+    QTextStream out(&file);
+    QStringList row;
+    row<<QString::number(song.getsongid())
+        <<escapeCsvField(song.getsongname())
+        <<escapeCsvField(song.getsinger())
+        <<escapeCsvField(song.getsong_filename())
+        <<escapeCsvField(song.getsong_pic())
+        <<QString::number(song.getsong_time());
+    out<<row.join(",")<<"\n";
+    file.close();
+}
+//转义函数
+QString file_tool::escapeCsvField(const QString& field){
+    QString str = field;
+    str.replace(",","丨1丨");
+    str.replace("\"","丨2丨");
+    str.replace("\n","丨3丨");
+    return str;
+}
+
+//读取还原字符函数
+QString file_tool::unescapeCsvField(const QString& field){
+    QString str = field;
+    str.replace("丨1丨",",");
+    str.replace("丨2丨","\"");
+    str.replace("丨3丨","\n");
+    return str;
+}
+
 
 //清空文件重新写入 用于非全局文件
 void file_tool::rewritesong_v(QVector<song_info>& songs){
@@ -83,11 +135,18 @@ void file_tool::rewritesong_v(QVector<song_info>& songs){
     QTextStream out(&file);
     for(const song_info &song:songs){
         QStringList row;
-        row<<QString::number(song.getsongid())<<song.getsongname()<<song.getsinger()<<song.getsong_filename()<<song.getsong_pic()<<QString::number(song.getsong_time());
+        row<<escapeCsvField(QString::number(song.getsongid()))
+            <<escapeCsvField(song.getsongname())
+            <<escapeCsvField(song.getsinger())
+            <<escapeCsvField(song.getsong_filename())
+            <<escapeCsvField(song.getsong_pic())
+            <<escapeCsvField(QString::number(song.getsong_time()));
         out<<row.join(",")<<"\n";
     }
     file.close();
 }
+
+
 //用于非全局文件
 QVector<song_info> file_tool::select_song_v(){
     QVector<song_info> v;
@@ -101,7 +160,13 @@ QVector<song_info> file_tool::select_song_v(){
         QString line = in.readLine();
         QStringList list = line.split(",");
         song_info song;
-        song.setSong(list[0].toInt(),list[1],list[2],list[3],list[5].toInt(),list[4]);
+        song.setSong(
+            list[0].toInt(),
+            unescapeCsvField(list[1]),
+            unescapeCsvField(list[2]),
+            unescapeCsvField(list[3]),
+            list[5].toInt(),
+            unescapeCsvField(list[4]));
         v.push_back(song);
     }
     file.close();
@@ -116,7 +181,10 @@ void file_tool::rewritelist(QVector<song_list>& lists){
     QTextStream out(&file);
     for(const song_list &list:lists){
         QStringList row;
-        row<<QString::number(list.getlistnum())<<list.getlistname()<<list.getlistpic()<<list.getlistinfo();
+        row<<escapeCsvField(QString::number(list.getlistnum()))
+            <<escapeCsvField(list.getlistname())
+            <<escapeCsvField(list.getlistpic())
+            <<escapeCsvField(list.getlistinfo());
         out<<row.join(",")<<"\n";
     }
     file.close();
@@ -134,7 +202,10 @@ QVector<song_list> file_tool::select_list(){
         QString line = in.readLine();
         QStringList list = line.split(",");
         song_list s_list;
-        s_list.setlist(list[0].toInt(),list[1],list[2],list[3]);
+        s_list.setlist(list[0].toInt(),
+                       unescapeCsvField(list[1]),
+                       unescapeCsvField(list[2]),
+                       unescapeCsvField(list[3]));
         v.push_back(s_list);
     }
     file.close();
@@ -147,7 +218,10 @@ QVector<song_list> file_tool::select_list(){
 
 void file_tool::createsonglist(int listid){
     QFile file(QString("%1/%2/%3.csv").arg(projectpath).arg(foldername).arg(QString::number(listid)));
-    if(!file.open(QIODevice::WriteOnly|QIODevice::Text)){
+    if(file.exists()){
+        return;
+    }
+    if(!file.open(QIODevice::Append|QIODevice::Text)){
         return;
     }
     file.close();
@@ -186,6 +260,17 @@ void file_tool::deletesonglist(int& listid){
     if(QFile::exists(path)){
         QFile::remove(path);
     }
+}
+//向对应歌单末尾添加一条数据
+void file_tool::add_one_data(int listid,int addid){
+    QFile file(QString("%1/%2/%3.csv").arg(projectpath).arg(foldername).arg(QString::number(listid)));
+
+    if(!file.open(QIODevice::Append|QIODevice::Text)){
+        return;
+    }
+    QTextStream out(&file);
+    out<<addid<<"\n";
+    file.close();
 }
 
 
