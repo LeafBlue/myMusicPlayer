@@ -12,7 +12,6 @@ MainWindow::MainWindow(QWidget *parent)
     title_text = nullptr;
     control_area=nullptr;
     music_name = nullptr;
-    cur_song = nullptr;
     music_pic = nullptr;
     nowtime = nullptr;
     endtime = nullptr;
@@ -20,13 +19,14 @@ MainWindow::MainWindow(QWidget *parent)
     list_name = nullptr;
     scroll = nullptr;
     right = nullptr;
-    ctrl_wid = nullptr;
-
-    audiooutput = new QAudioOutput(this);
+    slider = nullptr;
 
 
-    //当前音乐
-    cur_song = nullptr;
+
+    ctrl_wid_ = nullptr;
+    player_ = new music_play();
+
+
     filetool = new file_tool();
 
     create_files();
@@ -41,6 +41,13 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
+    connect(ctrl_wid_,&wid_ctrl::do_play,[&](){
+        play_music();
+    });
+
+    connect(ctrl_wid_,&wid_ctrl::do_pause,[&](){
+        pause_music();
+    });
 
 }
 
@@ -252,7 +259,7 @@ void MainWindow::setcontrol()
 
 
 
-    QSlider *slider = new QSlider(Qt::Horizontal);
+    slider = new QSlider(Qt::Horizontal);
     slider->setMinimum(0);
     slider->setMaximum(100);
     slider->setStyleSheet(
@@ -279,14 +286,14 @@ void MainWindow::setcontrol()
     slider_layout->addWidget(endtime);
 
     //布置按钮
-    ctrl_wid = new wid_ctrl();
+    ctrl_wid_ = new wid_ctrl();
 
     ctrl_biglayout->addWidget(music_info);
     ctrl_biglayout->addStretch();
     //这里需要一个进度条组件
     ctrl_biglayout->addLayout(slider_layout);
     ctrl_biglayout->addStretch();
-    ctrl_biglayout->addWidget(ctrl_wid);
+    ctrl_biglayout->addWidget(ctrl_wid_);
 
 
 
@@ -406,19 +413,19 @@ void MainWindow::settitle(QString window_title)
 
 void MainWindow::set_songinfo()
 {
-    if(cur_song!=nullptr){
+    if(player_->cur_song!=nullptr){
         //设置歌曲信息
         QPixmap music_img(":icon/music_demopic.jpg");
-        if(cur_song->getsong_pic().size()>0){
-            music_pic->setPixmap(cur_song->getsong_pic());
+        if(player_->cur_song->getsong_pic().size()>0){
+            music_pic->setPixmap(player_->cur_song->getsong_pic());
         }else{
             music_pic->setPixmap(music_img);
         }
 
-        music_name->setText(cur_song->getsongname() + "-" + cur_song->getsinger());
+        music_name->setText(player_->cur_song->getsongname() + "-" + player_->cur_song->getsinger());
         //设置进度条时间
         nowtime->setText(to_time(0));
-        endtime->setText(to_time(cur_song->getsong_time()));
+        endtime->setText(to_time(player_->cur_song->getsong_time()));
     }
 }
 
@@ -722,15 +729,15 @@ void MainWindow::addmusicfromfile(int listid)
     QString filename = QFileDialog::getOpenFileName(this,QObject::tr("打开文件"),"D:",QObject::tr("音频文件(*.mp3 *.wav *.aac *.m4a)"));
 
 
-    player.setSource(QUrl::fromLocalFile(filename));
+    player_->player.setSource(QUrl::fromLocalFile(filename));
 
     QFileInfo fileinfo(filename);
 
-    QObject::connect(&player,&QMediaPlayer::mediaStatusChanged,[&,listid,fileinfo,filename](QMediaPlayer::MediaStatus status){
+    QObject::connect(&player_->player,&QMediaPlayer::mediaStatusChanged,[&,listid,fileinfo,filename](QMediaPlayer::MediaStatus status){
 
         if(status == QMediaPlayer::LoadedMedia){
 
-            const QMediaMetaData metadata = player.metaData();
+            const QMediaMetaData metadata = player_->player.metaData();
 
 
             QString song_name = metadata.value(QMediaMetaData::Title).toString();
@@ -761,39 +768,40 @@ void MainWindow::addmusicfromfile(int listid)
     });
 }
 
-void MainWindow::play_music()
-{
-    if(cur_song == nullptr){
-        if(cur_list.size() > 0){
-            cur_song = &(map[cur_list[0]]);
-        }else{
-            return;
-        }
-    }
-    QString filename = cur_song->getsong_filename();
 
-    set_songinfo();
-    if(!QFile::exists(filename)){
-        qDebug("file not exist.");
-        return;
-    }
-
-    player.setSource(QUrl::fromLocalFile(filename));
-    connect(&player,&QMediaPlayer::mediaStatusChanged,[&](QMediaPlayer::MediaStatus status){
-        if(status == QMediaPlayer::LoadedMedia){
-
-            player.setAudioOutput(audiooutput);
-            audiooutput->setVolume(0.5);
-            player.play();
-        }
-    });
-}
 
 //--------------------------------------------------------------------逻辑相关 结束--------------------------------------------------------------------
 
 //--------------------------------------------------------------------播放控制 开始--------------------------------------------------------------------
 
+void MainWindow::play_music()
+{
+    if(player_->cur_song == nullptr){
+        if(cur_list.size() > 0){
+            player_->setsource_((map[cur_list[0]]));
+        }else{
+            return;
+        }
+        //设置当前音乐信息
+        set_songinfo();
+        connect(&player_->player,&QMediaPlayer::mediaStatusChanged,[&](QMediaPlayer::MediaStatus status){
+            if(status == QMediaPlayer::LoadedMedia){
+                player_->setsource_((map[cur_list[0]]));
+                player_->play_();
+            }
+        });
+    }else{
+        player_->play_();
+    }
 
+
+
+}
+
+void MainWindow::pause_music()
+{
+    player_->pause_();
+}
 
 
 //--------------------------------------------------------------------播放控制 结束--------------------------------------------------------------------

@@ -19,12 +19,14 @@ wid_ctrl::wid_ctrl(QWidget *parent)
     getstyle(play_pause,"url(:icon/play.png)");
     btn_layout->addWidget(play_pause);
 
-    connect(play_pause,&QPushButton::clicked,[this,play_status](){
-        if(play_status){
+    connect(play_pause,&QPushButton::clicked,[&](){
+        if(this->play_status){
             getstyle(play_pause,"url(:icon/play.png)");
+            this->play_status = false;
             emit do_pause();
         }else{
             getstyle(play_pause,"url(:icon/pause.png)");
+            this->play_status = true;
             emit do_play();
         }
     });

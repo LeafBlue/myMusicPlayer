@@ -33,6 +33,7 @@
 #include"songlistlabel.h"
 #include"wid_songlist.h"
 #include"wid_ctrl.h"
+#include"music_play.h"
 
 class MainWindow : public QMainWindow
 {
@@ -72,6 +73,7 @@ public:
 
     //播放！
     void play_music();
+    void pause_music();
 
 private:
     //界面相关
@@ -88,9 +90,10 @@ private:
     QLabel *list_name;
     QScrollArea *scroll;
     QVBoxLayout *right;
+    QSlider *slider;
 
     //当前音乐
-    song_info* cur_song;
+    //song_info* cur_song;
     //当前打开歌单，播放使用
     QVector<int> cur_list;
 
@@ -98,7 +101,10 @@ private:
     file_tool *filetool;
 
     //控制工具
-    wid_ctrl *ctrl_wid;
+    wid_ctrl *ctrl_wid_;
+    //播放工具
+    music_play *player_;
+
 
     //全局变量，存储所有歌曲信息
     QMap<int,song_info> map;
@@ -106,8 +112,7 @@ private:
     //歌单列表
     QVector<song_list> songlist_v;
 
-    QMediaPlayer player;
-    QAudioOutput *audiooutput;
+
 
 
 
