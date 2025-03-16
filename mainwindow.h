@@ -28,6 +28,7 @@
 #include<QDebug>
 #include<QFileDialog>
 #include<QAudioOutput>
+#include<algorithm>
 
 #include"song_tool.h"
 #include"songlistlabel.h"
@@ -74,6 +75,9 @@ public:
     //播放！
     void play_music();
     void pause_music();
+
+    void prev_();
+    void next_();
 
 private:
     //界面相关

@@ -15,6 +15,10 @@ wid_ctrl::wid_ctrl(QWidget *parent)
     getstyle(prev_,"url(:icon/back.png)");
     btn_layout->addWidget(prev_);
 
+    connect(prev_,&QPushButton::clicked,[&](){
+        emit do_prev();
+    });
+
     play_pause = new QPushButton(this);
     getstyle(play_pause,"url(:icon/play.png)");
     btn_layout->addWidget(play_pause);
@@ -34,6 +38,10 @@ wid_ctrl::wid_ctrl(QWidget *parent)
     next_ = new QPushButton(this);
     getstyle(next_,"url(:icon/foward.png)");
     btn_layout->addWidget(next_);
+
+    connect(next_,&QPushButton::clicked,[&](){
+        emit do_next();
+    });
 
     voice_novoice = new QPushButton(this);
     getstyle(voice_novoice,"url(:icon/voice.png)");

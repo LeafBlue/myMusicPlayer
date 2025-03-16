@@ -803,6 +803,36 @@ void MainWindow::pause_music()
     player_->pause_();
 }
 
+void MainWindow::prev_()
+{
+    if(player_->cur_song == nullptr){
+        return;
+    }
+    int s_id = 0;
+    auto it = std::find(cur_list.begin(),cur_list.end(),player_->cur_song->getsongid());
+    if(it == cur_list.begin()){
+        s_id = cur_list.back();
+    }else{
+        s_id = *(--it);
+    }
+    player_->setsource_(map[s_id]);
+}
+
+void MainWindow::next_()
+{
+    if(player_->cur_song == nullptr){
+        return;
+    }
+    int s_id = 0;
+    auto it = std::find(cur_list.begin(),cur_list.end(),player_->cur_song->getsongid());
+    if(it == cur_list.end() - 1){
+        s_id = *(cur_list.begin());
+    }else{
+        s_id = *(++it);
+    }
+    player_->setsource_(map[s_id]);
+}
+
 
 //--------------------------------------------------------------------播放控制 结束--------------------------------------------------------------------
 

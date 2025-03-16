@@ -8,6 +8,7 @@
 #include<QStringList>
 #include<QMap>
 
+
 class file_tool : public QObject
 {
     Q_OBJECT
