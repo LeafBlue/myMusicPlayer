@@ -109,6 +109,8 @@ private:
     QSlider *slider;
 
 
+    //进度条调整标志
+    bool user_set_slider;
 
     //当前音乐
     //song_info* cur_song;

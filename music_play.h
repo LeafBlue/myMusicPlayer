@@ -42,8 +42,15 @@ public:
 
     void setvoice(int voice_num);
 
+    void get_nowposition();
+
+    void set_nowposition(int pos_);
+
 
 signals:
+    void send_position(int pos_);
+
+    void send_stop();
 };
 
 #endif // MUSIC_PLAY_H

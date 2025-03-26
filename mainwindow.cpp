@@ -27,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent)
     wid_vs = nullptr;
     voice_slider = nullptr;
 
+    user_set_slider = false;
+
 
 
     ctrl_wid_ = nullptr;
@@ -47,6 +49,22 @@ MainWindow::MainWindow(QWidget *parent)
     set_voice_slider();
 
 
+    connect(player_,&music_play::send_position,[this](int pos_){
+        if(!user_set_slider){
+            slider->setValue(pos_);
+            nowtime->setText(to_time(pos_/1000));
+        }
+    });
+
+    connect(player_,&music_play::send_stop,[this](){
+        int sequence_ = ctrl_wid_->sequece_;
+        if(sequence_ == 2){//单曲循环，直接获取当前歌曲
+            player_->player.setPosition(0);
+            player_->play_();
+        }else{
+            next_();
+        }
+    });
 
     connect(ctrl_wid_,&wid_ctrl::do_play,[&](){
         play_music();
@@ -71,6 +89,8 @@ MainWindow::MainWindow(QWidget *parent)
             wid_vs->hide();
         }
     });
+
+
 }
 
 MainWindow::~MainWindow() {}
@@ -300,6 +320,15 @@ void MainWindow::setcontrol()
         "}"
     );
 
+    connect(slider,&QSlider::sliderPressed,[this](){
+        user_set_slider = true;
+    });
+    connect(slider,&QSlider::sliderReleased,[this](){
+        int v_data = slider->value();
+        player_->set_nowposition(v_data);
+        user_set_slider = false;
+    });
+
     slider_layout->addWidget(slider);
 
     endtime = new QLabel();
@@ -494,6 +523,9 @@ void MainWindow::set_songinfo()
             QPixmap music_img = QPixmap::fromImage(player_->cur_music_img);
             music_pic->setPixmap(music_img);
         }
+
+        int mi_s = player_->cur_song->getsong_time();
+        slider->setRange(0,mi_s * 1000);
 
         music_name->setText(player_->cur_song->getsongname() + "-" + player_->cur_song->getsinger());
         //设置进度条时间
