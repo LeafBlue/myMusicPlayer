@@ -26,6 +26,8 @@ private:
 public:
     explicit song_info();
 
+    song_info(const song_info& other);
+
     void setSong(QString song_name,QString singer,QString song_filename,int song_time,QString song_pic = "");
     void setSong(int song_id,QString song_name,QString singer,QString song_filename,int song_time,QString song_pic = "");
     int getsongid()const;

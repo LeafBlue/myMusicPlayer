@@ -16,12 +16,15 @@ class wid_songlist : public QWidget
 
 private:
     int song_id;
+    int song_list_id;
 public:
     explicit wid_songlist(QWidget *parent = nullptr);
 
     void setsong_id(int song_id);
     int getsong_id();
 
+    void setsong_list_id(int song_list_id);
+    int getsong_list_id();
 protected:
     void mouseDoubleClickEvent(QMouseEvent* event)override;
 

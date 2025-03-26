@@ -3,13 +3,30 @@
 wid_ctrl::wid_ctrl(QWidget *parent)
     : QWidget{parent}
 {
+    sequece_ = 1;//1,顺序 2 单体 3随机
     play_status = false;
+    showvoice = false;
 
     QHBoxLayout *btn_layout = new QHBoxLayout(this);
 
     play_sequece = new QPushButton(this);
-    getstyle(play_sequece,"url(:icon/danqu.png)");
+    getstyle(play_sequece,"url(:icon/shunxu.png)");
     btn_layout->addWidget(play_sequece);
+
+    connect(play_sequece,&QPushButton::clicked,[&](){
+        if(sequece_ == 1){
+            sequece_ = 2;
+            getstyle(play_sequece,"url(:icon/danqu.png)");
+        }
+        else if(sequece_ == 2){
+            sequece_ = 3;
+            getstyle(play_sequece,"url(:icon/suiji.png)");
+        }
+        else if(sequece_ == 3){
+            sequece_ = 1;
+            getstyle(play_sequece,"url(:icon/shunxu.png)");
+        }
+    });
 
     prev_ = new QPushButton(this);
     getstyle(prev_,"url(:icon/back.png)");
@@ -46,6 +63,15 @@ wid_ctrl::wid_ctrl(QWidget *parent)
     voice_novoice = new QPushButton(this);
     getstyle(voice_novoice,"url(:icon/voice.png)");
     btn_layout->addWidget(voice_novoice);
+
+    connect(voice_novoice,&QPushButton::clicked,[&](){
+        if(showvoice){
+            showvoice = false;
+        }else{
+            showvoice = true;
+        }
+        emit show_voice();
+    });
 
 }
 

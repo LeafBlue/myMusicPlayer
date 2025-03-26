@@ -7,6 +7,8 @@
 #include<QDir>
 #include<QStringList>
 #include<QMap>
+#include<QHash>
+#include<utility>
 
 
 class file_tool : public QObject
@@ -29,7 +31,7 @@ public:
 
 
     void rewritesong(QMap<int,song_info>& songs);
-    QMap<int,song_info> select_song();
+    std::pair<QMap<int,song_info>,QHash<QString,int>> select_song();
     void rewritesong_v(QVector<song_info>& songs);
     QVector<song_info> select_song_v();
 

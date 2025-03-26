@@ -13,7 +13,7 @@
 class wid_ctrl : public QWidget
 {
     Q_OBJECT
-private:
+public:
     QPushButton *play_pause;
     bool play_status;//假设true时，状态为播放，显示为暂停
 
@@ -22,9 +22,11 @@ private:
     QPushButton *voice_novoice;
     QPushButton *play_sequece;
 
+    int sequece_;
+
+    bool showvoice;
 
 
-public:
     explicit wid_ctrl(QWidget *parent = nullptr);
 
     void getstyle(QPushButton *btn,const QString back_img);
@@ -41,6 +43,8 @@ signals:
 
     void do_next();
     void do_prev();
+
+    void show_voice();
 
 public slots:
 };

@@ -66,11 +66,13 @@ void file_tool::rewritesong(QMap<int,song_info>& songs){
     file.close();
 }
 //改为使用 QMap读取
-QMap<int,song_info> file_tool::select_song(){
+std::pair<QMap<int,song_info>,QHash<QString,int>> file_tool::select_song(){
+    std::pair<QMap<int,song_info>,QHash<QString,int>> p;
     QMap<int,song_info> map;
+    QHash<QString,int> hash_;
     QFile file(songfile);
     if(!file.open(QIODevice::ReadOnly|QIODevice::Text)){
-        return map;
+        return p;
     }
     QTextStream in(&file);
 
@@ -86,9 +88,13 @@ QMap<int,song_info> file_tool::select_song(){
                      unescapeCsvField(list[4])
                      );
         map.insert(list[0].toInt(),song);
+        hash_.insert(song.getsong_filename(),song.getsongid());
     }
     file.close();
-    return map;
+
+    p.first = map;
+    p.second = hash_;
+    return p;
 }
 //向存储歌曲的文件末尾增加一条数据
 void file_tool::writesong(song_info& song){

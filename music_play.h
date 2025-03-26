@@ -4,8 +4,11 @@
 #include <QObject>
 #include "song_info.h"
 #include<QMediaPlayer>
+#include<QMediaMetaData>
+#include<QImage>
 #include<QTimer>
 #include<QAudioOutput>
+
 
 class music_play : public QObject
 {
@@ -25,10 +28,13 @@ public:
     QMediaPlayer player;
     QAudioOutput *audiooutput;
 
+    //存个当前音乐的图片
+    QImage cur_music_img;
+
 
     explicit music_play(QObject *parent = nullptr);
 
-    void setsource_(song_info song);
+    void setsource_(song_info& song);
 
     void play_();
 

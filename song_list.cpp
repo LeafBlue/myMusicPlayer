@@ -24,3 +24,14 @@ void song_list::setlist(int list_num,const QString& list_name,const QString& lis
     this->list_pic = list_pic;
     this->list_info = list_info;
 }
+
+void song_list::setlist_1(int list_num, const QVector<int> &v)
+{
+    this->list_num = list_num;
+    this->v = v;
+}
+
+QVector<int>& song_list::getlist_1()
+{
+    return v;
+}

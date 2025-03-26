@@ -35,6 +35,15 @@
 #include"wid_songlist.h"
 #include"wid_ctrl.h"
 #include"music_play.h"
+#include<QHash>
+#include<QProgressDialog>
+#include<QFuture>
+#include<QFutureWatcher>
+#include<QtConcurrent/QtConcurrentRun>
+#include<QMessageBox>
+
+#include<cstdlib>
+#include<ctime>
 
 class MainWindow : public QMainWindow
 {
@@ -64,6 +73,9 @@ public:
     QString to_time(int second_time);
     int of_time(QString minute_time);
 
+    //设置一个音量进度条，默认隐藏
+    void set_voice_slider();
+
     //进入程序加载
     void get_map_data();
     //创建文件
@@ -73,7 +85,7 @@ public:
     void addmusicfromfile(int list_id);
 
     //播放！
-    void play_music();
+    void play_music(int cur_songid = -1,int playmusic_id = -1);
     void pause_music();
 
     void prev_();
@@ -96,10 +108,15 @@ private:
     QVBoxLayout *right;
     QSlider *slider;
 
+
+
     //当前音乐
     //song_info* cur_song;
-    //当前打开歌单，播放使用
-    QVector<int> cur_list;
+    //当前打开歌单
+    song_list* cur_list;
+    //QVector<int> cur_list;
+    //当前 播放列表
+    song_list* play_list;
 
     //文件工具
     file_tool *filetool;
@@ -112,9 +129,22 @@ private:
 
     //全局变量，存储所有歌曲信息
     QMap<int,song_info> map;
+
+    //额外维护一个查询功能
+    QHash<QString,int> check_hash;
+
+
     //存储文件中读到的数据
     //歌单列表
     QVector<song_list> songlist_v;
+
+    QMediaPlayer add_player;
+
+
+    //整个全局使用的音量进度条
+    QWidget *wid_vs;
+    QSlider *voice_slider;
+
 
 
 

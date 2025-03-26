@@ -3,6 +3,16 @@
 song_info::song_info()
 {}
 
+song_info::song_info(const song_info &other)
+{
+    this->song_id = other.getsongid();
+    this->song_name = other.getsongname();
+    this->singer = other.getsinger();
+    this->song_filename = other.getsong_filename();
+    this->song_time = other.getsong_time();
+    this->song_pic = other.getsong_pic();
+}
+
 void song_info::setSong(QString song_name,QString singer,QString song_filename,int song_time,QString song_pic){
 
     //设置id

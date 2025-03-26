@@ -42,6 +42,7 @@ private:
     //歌单介绍
     QString list_info;
 
+    QVector<int> v;
 
 public:
     explicit song_list();
@@ -53,6 +54,10 @@ public:
     QString getlistinfo() const;
 
     void setlist(int list_num,const QString& list_name,const QString& list_pic,const QString& list_info);
+
+    void setlist_1(int list_num,const QVector<int>& v);
+
+    QVector<int>& getlist_1();
 
 };
 

@@ -21,6 +21,12 @@ MainWindow::MainWindow(QWidget *parent)
     right = nullptr;
     slider = nullptr;
 
+    cur_list = nullptr;
+    play_list = nullptr;
+
+    wid_vs = nullptr;
+    voice_slider = nullptr;
+
 
 
     ctrl_wid_ = nullptr;
@@ -38,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     settitle(QObject::tr("  我的音乐播放器"));
     setworkarea();
     setcontrol();
+    set_voice_slider();
 
 
 
@@ -49,6 +56,21 @@ MainWindow::MainWindow(QWidget *parent)
         pause_music();
     });
 
+    connect(ctrl_wid_,&wid_ctrl::do_prev,[&](){
+        prev_();
+    });
+
+    connect(ctrl_wid_,&wid_ctrl::do_next,[&](){
+        next_();
+    });
+
+    connect(ctrl_wid_,&wid_ctrl::show_voice,[&](){
+        if(ctrl_wid_->showvoice){
+            wid_vs->show();
+        }else{
+            wid_vs->hide();
+        }
+    });
 }
 
 MainWindow::~MainWindow() {}
@@ -397,7 +419,56 @@ void MainWindow::setright1(int songlist_id)
 }
 
 
+void MainWindow::set_voice_slider()
+{
+    wid_vs = new QWidget(this);
+    wid_vs->setFixedSize(35,100);
+    wid_vs->setStyleSheet("background-color:SlateGray;");
 
+    QHBoxLayout *lay_ = new QHBoxLayout(wid_vs);
+    lay_->setContentsMargins(0,0,0,0);
+
+
+    voice_slider = new QSlider(Qt::Vertical,wid_vs);
+    voice_slider->setStyleSheet(
+        "QSlider::groove:vertical {"
+        "background: SkyBlue; /* 滑轨背景颜色 */"
+        "width: 10px; /* 滑轨宽度 */"
+        "height: 80px;"
+        "border-radius: 2px; /* 滑轨圆角 */"
+        "}"
+        "QSlider::handle:vertical {"
+        "background: LightSlateGray; /* 滑块颜色 */"
+        "height: 10px; /* 滑块高度 */"
+        "width: 40px; /* 滑块宽度 */"
+        "margin: -5px 0; /* 调整滑块位置，使其居中对齐滑轨 */"
+        "border-radius: 2px; /* 滑块圆角 */"
+        "}"
+        "QSlider::add-page:vertical {"
+        "background: SkyBlue; /* 已填充部分上方的颜色 */"
+        "}"
+        "QSlider::sub-page:vertical {"
+        "background: Turquoise; /* 已填充部分下方的颜色 */"
+        "}");
+
+    voice_slider->setRange(0,100);
+    voice_slider->setValue(50);
+    voice_slider->setSingleStep(1);
+    connect(voice_slider,&QSlider::valueChanged,[this](){
+        int v_num = voice_slider->value();
+        player_->setvoice(v_num);
+        if(v_num == 0){
+            ctrl_wid_->getstyle(ctrl_wid_->voice_novoice,"url(:icon/novoice.png)");
+        }else{
+            ctrl_wid_->getstyle(ctrl_wid_->voice_novoice,"url(:icon/voice.png)");
+        }
+    });
+
+    wid_vs->move(QPoint(1035,565));
+
+    wid_vs->hide();
+    lay_->addWidget(voice_slider);
+}
 
 
 
@@ -415,10 +486,12 @@ void MainWindow::set_songinfo()
 {
     if(player_->cur_song!=nullptr){
         //设置歌曲信息
+
         QPixmap music_img(":icon/music_demopic.jpg");
-        if(player_->cur_song->getsong_pic().size()>0){
-            music_pic->setPixmap(player_->cur_song->getsong_pic());
-        }else{
+        music_pic->setPixmap(music_img);
+        if(!player_->cur_music_img.isNull()){
+            //player_->cur_music_img = coverArt.scaled(200, 200, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            QPixmap music_img = QPixmap::fromImage(player_->cur_music_img);
             music_pic->setPixmap(music_img);
         }
 
@@ -433,14 +506,14 @@ void MainWindow::set_songinfo()
 void MainWindow::set_songlist_info(int songlist_id)
 {
     song_list* this_songlist = getsonglistbyid(songlist_v,songlist_id);
-
-    if(this_songlist != nullptr && this_songlist->getlistpic().size()>0){
-        QPixmap list_img(this_songlist->getlistpic());
-        list_pic->setPixmap(list_img);
+    QPixmap music_img(":icon/music_demopic.jpg");
+    if(this_songlist->getlistpic().size()>0){
+        list_pic->setPixmap(this_songlist->getlistpic());
     }else{
-        QPixmap list_img(":icon/music_demopic.jpg");
-        list_pic->setPixmap(list_img);
+        list_pic->setPixmap(music_img);
     }
+
+
     QString songlistname = "新建歌单";
     QString songlistinfo = "该歌单很神秘，没有任何介绍";
     if(this_songlist != nullptr){
@@ -526,19 +599,19 @@ void MainWindow::setlist1(song_list *songlist,int page)
         QLabel *label_head = new QLabel();
         label_head->setAlignment(Qt::AlignCenter);
         label_head->setFixedHeight(30);
-        label_head->setStyleSheet("border:1px solid gray;color:black;font-size:25px;font-weight: bold;");
+        label_head->setStyleSheet("border:1px solid gray;color:black;font-size:20px;font-weight: bold;");
         if(i == 0){
             label_head->setText("序号");
             head_layout->addWidget(label_head,1);
         }else if(i == 1){
             label_head->setText("歌曲");
-            head_layout->addWidget(label_head,2);
+            head_layout->addWidget(label_head,6);
         }else if(i == 2){
             label_head->setText("操作");
-            head_layout->addWidget(label_head,2);
+            head_layout->addWidget(label_head,4);
         }else if(i == 3){
             label_head->setText("歌手");
-            head_layout->addWidget(label_head,2);
+            head_layout->addWidget(label_head,4);
         }else if(i == 4){
             label_head->setText("收藏");
             head_layout->addWidget(label_head,1);
@@ -552,18 +625,22 @@ void MainWindow::setlist1(song_list *songlist,int page)
         int this_songlistid = songlist->getlistnum();
 
         //清空重新赋值
-        cur_list.clear();
-        cur_list = filetool->getsonglist(this_songlistid);
+        delete cur_list;
 
+        cur_list = new song_list();
+
+        cur_list->setlist_1(this_songlistid,filetool->getsonglist(this_songlistid));
+
+        //cur_list = filetool->getsonglist(this_songlistid);
         //做分页处理，每页20条
-        size_t data_num = cur_list.size();
+        size_t data_num = cur_list->getlist_1().size();
         if(data_num > 0){
             for (int line = 0; line < 20; ++line) {
                 int index = 20 * (page - 1) + line;
                 if(index > data_num - 1){
                     break;
                 }
-                song_info cur_song_ = map[cur_list[index]];
+                song_info cur_song_ = map[cur_list->getlist_1()[index]];
 
                 QString back_color = "";
                 if(iscolor){
@@ -577,12 +654,20 @@ void MainWindow::setlist1(song_list *songlist,int page)
                 wid_songlist *wid_row = new wid_songlist();
                 wid_row->setFixedHeight(30);
                 wid_row->setsong_id(cur_song_.getsongid());
+                wid_row->setsong_list_id(this_songlistid);
                 wid_row->setStyleSheet("wid_songlist{background-color:"+back_color+";}"
                                        "wid_songlist:hover{background-color:MediumPurple;}");
+
                 //绑定双击事件
-                connect(wid_row,&wid_songlist::doubleclick,[this](){
-                    play_music();
+                connect(wid_row,&wid_songlist::doubleclick,[&,index,wid_row](){
+
+                    if(!ctrl_wid_->play_status){
+                        ctrl_wid_->getstyle(ctrl_wid_->play_pause,"url(:icon/pause.png)");
+                        ctrl_wid_->play_status = true;
+                    }
+                    play_music(cur_list->getlist_1()[index], wid_row->getsong_list_id());
                 });
+                //等一个单击按钮
 
 
                 QHBoxLayout *row = new QHBoxLayout(wid_row);
@@ -594,21 +679,26 @@ void MainWindow::setlist1(song_list *songlist,int page)
                     QLabel *label_head = new QLabel();
                     label_head->setAlignment(Qt::AlignCenter);
                     label_head->setFixedHeight(30);
+
                     //label_head->setAttribute(Qt::WA_TransparentForMouseEvents, true);
-                    label_head->setStyleSheet("QLabel{border:1px solid lightgray;color:black;font-size:20px;background-color: transparent;}");
+                    label_head->setStyleSheet("QLabel{border:1px solid lightgray;color:black;font-size:14px;background-color: transparent;}");
                     if(i == 0){
                         label_head->setText(QString::number(cur_song_.getsongid() + 1));
                         row->addWidget(label_head,1);
                     }else if(i == 1){
-                        label_head->setText(cur_song_.getsongname());
-                        row->addWidget(label_head,2);
+                        QString songname_ = cur_song_.getsongname();
+                        songname_ = songname_.size()>16?(songname_.left(16) + "..."):songname_;
+                        label_head->setText(songname_);
+                        row->addWidget(label_head,6);
                     }else if(i == 2){
                         //此功能待完善
                         label_head->setText("操作");
-                        row->addWidget(label_head,2);
+                        row->addWidget(label_head,4);
                     }else if(i == 3){
-                        label_head->setText(cur_song_.getsinger());
-                        row->addWidget(label_head,2);
+                        QString singer_ = cur_song_.getsinger();
+                        singer_ = singer_.size()>12?(singer_.left(12) + "..."):singer_;
+                        label_head->setText(singer_);
+                        row->addWidget(label_head,4);
                     }else if(i == 4){
                         //此功能待完善
                         label_head->setText("❤");
@@ -621,23 +711,38 @@ void MainWindow::setlist1(song_list *songlist,int page)
             //生成一个分页效果
             if(data_num >20){
                 QHBoxLayout *row = new QHBoxLayout();
-                row->setContentsMargins(0,0,0,0);
-                int pages = (data_num / 20) + 1;
-                if(pages <= 10){
+                row->setContentsMargins(0,10,0,10);
+
+                row->addStretch(0);
+                //这个设置的是元素之间间距
+                row->setSpacing(5);
+                int pages = (data_num + 19) / 20;
+                if(pages <= 8){
                     for (int p = 0; p < pages; ++p) {
-                        QLabel *label_head = new QLabel();
-                        label_head->setAlignment(Qt::AlignCenter);
-                        label_head->setFixedSize(20,20);
+                        QPushButton *btn_head = new QPushButton();
+                        btn_head->setFixedSize(25,25);
                         //先这么写
                         if(p+1 == page){
-                            label_head->setStyleSheet("color:white;font-size:15px;background-color:Blue;");
+                            btn_head->setStyleSheet("QPushButton {color:white;font-size:18px;background-color:LightBlue; }"
+                                                    "QPushButton:hover {color:white;font-size:18px;background-color:LightBlue; }"
+                                                    "QPushButton:pressed {color:white;font-size:15px;background-color:LightBlue; }");
+
+
+
                         }else{
-                            label_head->setStyleSheet("color:white;font-size:15px;background-color:LightBlue;");
+                            btn_head->setStyleSheet("QPushButton {color:white;font-size:18px;background-color:DarkCyan; }"
+                                                    "QPushButton:hover {color:white;font-size:18px;background-color:LightGreen; }"
+                                                    "QPushButton:pressed {color:white;font-size:15px;background-color:LightGreen; }");
+
+                            connect(btn_head,&QPushButton::clicked,[this,songlist,p](){
+                                setlist1(songlist,p+1);
+                            });
+
                         }
 
 
-                        label_head->setText(QString::number(p + 1));
-                        row->addWidget(label_head);
+                        btn_head->setText(QString::number(p + 1));
+                        row->addWidget(btn_head);
                     }
                 }else{
                     //当分页超过10
@@ -645,30 +750,43 @@ void MainWindow::setlist1(song_list *songlist,int page)
                     bool setellpsis = false;
                     while(thispage <= pages){
 
-                        QLabel *label_head = new QLabel();
-                        label_head->setAlignment(Qt::AlignCenter);
-                        label_head->setFixedSize(20,20);
+                        QPushButton *btn_head = new QPushButton();
+                        btn_head->setFixedSize(25,25);
 
 
-                        if(thispage == 1 || thispage == pages|| std::abs(thispage - page) <= 2){
-                            label_head->setText(QString::number(thispage));
+                        if(thispage == 1 || thispage == pages|| std::abs(thispage - page) <= 1){
+                            btn_head->setText(QString::number(thispage));
                             setellpsis = false;
 
                             if(thispage == page){
-                                label_head->setStyleSheet("color:white;font-size:15px;background-color:Blue;");
+                                btn_head->setStyleSheet("QPushButton {color:white;font-size:18px;background-color:LightBlue; }"
+                                                        "QPushButton:hover {color:white;font-size:18px;background-color:LightBlue; }"
+                                                        "QPushButton:pressed {color:white;font-size:15px;background-color:LightBlue; }");
                             }else{
-                                label_head->setStyleSheet("color:white;font-size:15px;background-color:LightBlue;");
+                                btn_head->setStyleSheet("QPushButton {color:white;font-size:18px;background-color:DarkCyan; }"
+                                                        "QPushButton:hover {color:white;font-size:18px;background-color:LightGreen; }"
+                                                        "QPushButton:pressed {color:white;font-size:15px;background-color:LightGreen; }");
+
+                                connect(btn_head,&QPushButton::clicked,[this,songlist,thispage](){
+                                    setlist1(songlist,thispage);
+                                });
                             }
                         }
                         else{
                             if(!setellpsis){
-                                label_head->setText("……");
+                                btn_head->setText("……");
+                                btn_head->setStyleSheet("border:none;");
+                                btn_head->clicked(false);
                                 setellpsis = true;
+                            }else{
+                                btn_head->hide();
                             }
                         }
-                        row->addWidget(label_head);
+                        row->addWidget(btn_head);
+                        ++thispage;
                     }
                 }
+                row->addStretch(0);
                 table_list->addLayout(row);
             }
         }
@@ -714,7 +832,10 @@ int MainWindow::of_time(QString minute_time)
 //取到全局变量数据
 void MainWindow::get_map_data()
 {
-    map = filetool->select_song();
+    auto pair_ = filetool->select_song();
+    //尽量避免内存中存在冗余数据
+    map = std::move(pair_.first);
+    check_hash = std::move(pair_.second);
 }
 
 void MainWindow::create_files()
@@ -724,34 +845,107 @@ void MainWindow::create_files()
     filetool->create_listfile();
 }
 
+//修改为可一次添加很多首
 void MainWindow::addmusicfromfile(int listid)
 {
-    QString filename = QFileDialog::getOpenFileName(this,QObject::tr("打开文件"),"D:",QObject::tr("音频文件(*.mp3 *.wav *.aac *.m4a)"));
 
+    QStringList filenames = QFileDialog::getOpenFileNames(this,QObject::tr("打开文件"),"D:",QObject::tr("音频文件(*.mp3 *.wav *.aac *.m4a)"));
+    if (filenames.isEmpty()) {
+        return; // 用户取消选择
+    }
 
-    player_->player.setSource(QUrl::fromLocalFile(filename));
+    size_t file_size = filenames.size();
+    int iskeepadd = 0;//0 还未询问 1 选择继续 2 选择跳过
+    QVector<int> jump_index;
+    for (int i_ = 0; i_ < file_size; ++i_) {
+        if(check_hash.contains(filenames[i_])){
+            if(iskeepadd == 0){
+                QMessageBox msgBox;
+                msgBox.setWindowTitle("歌曲已存在");
+                msgBox.setText(QString("存在重复歌曲，是否仍要添加？选择Yes继续添加，选择No跳过重复歌曲。"));
+                msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+                msgBox.setDefaultButton(QMessageBox::No);
 
-    QFileInfo fileinfo(filename);
+                if (msgBox.exec() == QMessageBox::Yes) {
+                    iskeepadd = 1;
+                }else{//跳过歌曲，需要记录跳过歌曲的下标
+                    iskeepadd = 2;
+                }
+            }else if(iskeepadd == 2){
+                jump_index.push_back(i_);
+            }
+        }
+    }
 
-    QObject::connect(&player_->player,&QMediaPlayer::mediaStatusChanged,[&,listid,fileinfo,filename](QMediaPlayer::MediaStatus status){
+    //根据插入歌曲多少，决定是否显示进度条，如果超过10就显示吧
+    bool isshowdialog = false;
+    if(file_size > 4){
+        isshowdialog = true;
+    }
 
-        if(status == QMediaPlayer::LoadedMedia){
+    QProgressDialog *progress_ = new QProgressDialog("正在加载歌曲...", "取消", 0, file_size, this);
 
-            const QMediaMetaData metadata = player_->player.metaData();
+    //展示一个进度条
+    if(isshowdialog){
 
+        progress_->setWindowModality(Qt::WindowModal);
+        progress_->show();
+        progress_->setCancelButton(nullptr);
+    }
 
+    //监听回调
+    QFutureWatcher<void>* watch = new QFutureWatcher<void>(this);
+
+    QObject::connect(watch,&QFutureWatcher<void>::finished,[=](){
+        if(isshowdialog){
+            progress_->setValue(file_size);
+            progress_->hide();
+        }
+        //重新加载当页歌曲
+        set_songlist_info(listid);
+
+        watch->deleteLater();
+        progress_->deleteLater();
+    });
+
+    auto loadFiles = [this,isshowdialog,progress_,listid,jump_index](const QStringList& filenames){
+        for (int j_ = 0; j_ < filenames.size(); ++j_) {
+
+            if(isshowdialog){
+                QMetaObject::invokeMethod(progress_,"setValue",Qt::QueuedConnection,Q_ARG(int,j_ + 1));
+            }
+            if(jump_index.contains(j_)){
+                continue;
+            }
+
+            QString filename = filenames[j_];
+            add_player.setSource(QUrl::fromLocalFile(filename));
+            QFileInfo fileinfo(filename);
+
+            //获取歌曲信息
+            const QMediaMetaData metadata = add_player.metaData();
+            /*
+            for (auto key : metadata.keys()) {
+                qDebug() << key << ":" << metadata.value(key).toString();
+            }
+            */
             QString song_name = metadata.value(QMediaMetaData::Title).toString();
             song_name = song_name.size()>0?song_name:fileinfo.baseName();
 
-            QString singer = metadata.value(QMediaMetaData::Author).toString();
+            QString singer = metadata.value(QMediaMetaData::ContributingArtist).toString();
+            //qDebug()<<singer;
             QString song_album = metadata.value(QMediaMetaData::AlbumTitle).toString();
+
             int song_time = metadata.value(QMediaMetaData::Duration).toInt() / 1000;
 
-            //获取id
             int song_id = map.size();
             song_info info;
             info.setSong(song_id,song_name,singer,filename,song_time);
+
+            //加入到全局变量，无需加入list，会重置
             map.insert(song_id,info);
+            check_hash.insert(filename,song_id);
+
             //添加入文件理论上应该写入文件一次，否则其他的歌单读不到
             //需要添加的地方：本地音乐，全部音乐
             //需要一个在文件末行添加的功能
@@ -761,11 +955,13 @@ void MainWindow::addmusicfromfile(int listid)
             if(listid != 1 && listid != 3){
                 filetool->add_one_data(listid,song_id);
             }
-            //重新加载当页歌曲
-            set_songlist_info(listid);
 
         }
-    });
+    };
+
+
+    QFuture<void> future = QtConcurrent::run(loadFiles,filenames);
+    watch->setFuture(future);
 }
 
 
@@ -774,27 +970,65 @@ void MainWindow::addmusicfromfile(int listid)
 
 //--------------------------------------------------------------------播放控制 开始--------------------------------------------------------------------
 
-void MainWindow::play_music()
+//这个参数应该只有点击或者双击歌单内歌曲才会传递
+void MainWindow::play_music(int cur_songid,int playmusic_id)
 {
-    if(player_->cur_song == nullptr){
-        if(cur_list.size() > 0){
-            player_->setsource_((map[cur_list[0]]));
-        }else{
-            return;
+    //默认情况下，cur_songid=-1，playmusic_id = -1;
+    //控制操作播放暂停，操作的是当前音乐和当前播放列表，无需传入任何东西
+    //双击歌曲会传入当前歌单id与当前点击音乐，一定是同时传入的，如果大于等于0代表有数据进入，与已有播放列表比较，如果不一致，更新播放列表，更新播放歌曲
+    //这种情况下播放列表很可能为空，要考虑到这种情况
+    if(playmusic_id >= 0){
+        if(play_list == nullptr){
+            play_list = new song_list();
+            QVector<int> play_list_v(cur_list->getlist_1().size());
+            std::copy(cur_list->getlist_1().begin(),cur_list->getlist_1().end(),play_list_v.begin());
+            play_list->setlist_1(cur_list->getlistnum(),play_list_v);
         }
+
+        if(play_list->getlistnum() != playmusic_id){
+            delete play_list;
+            play_list = new song_list();
+            QVector<int> play_list_v(cur_list->getlist_1().size());
+            std::copy(cur_list->getlist_1().begin(),cur_list->getlist_1().end(),play_list_v.begin());
+            play_list->setlist_1(cur_list->getlistnum(),play_list_v);
+        }
+
+        if(play_list->getlist_1().size() != cur_list->getlist_1().size()){
+            delete play_list;
+            play_list = new song_list();
+            QVector<int> play_list_v(cur_list->getlist_1().size());
+            std::copy(cur_list->getlist_1().begin(),cur_list->getlist_1().end(),play_list_v.begin());
+            play_list->setlist_1(cur_list->getlistnum(),play_list_v);
+        }
+
+        player_->setsource_(map[cur_songid]);
+        player_->play_();
         //设置当前音乐信息
         set_songinfo();
-        connect(&player_->player,&QMediaPlayer::mediaStatusChanged,[&](QMediaPlayer::MediaStatus status){
-            if(status == QMediaPlayer::LoadedMedia){
-                player_->setsource_((map[cur_list[0]]));
-                player_->play_();
-            }
-        });
     }else{
-        player_->play_();
+        if(player_->cur_song == nullptr){
+            if(cur_list->getlist_1().size() > 0){
+                //这里没有歌，理论上这里不存在播放列表，否则一定有歌
+                //根据当前歌单构建播放列表
+                if(play_list == nullptr){
+                    play_list = new song_list();
+                    QVector<int> play_list_v(cur_list->getlist_1().size());
+                    std::copy(cur_list->getlist_1().begin(),cur_list->getlist_1().end(),play_list_v.begin());
+                    play_list->setlist_1(cur_list->getlistnum(),play_list_v);
+                }
+
+            }else{
+                return;
+            }
+            player_->setsource_(map[cur_list->getlist_1()[0]]);
+
+            player_->play_();
+            //设置当前音乐信息
+            set_songinfo();
+        }else{
+            player_->play_();
+        }
     }
-
-
 
 }
 
@@ -805,33 +1039,84 @@ void MainWindow::pause_music()
 
 void MainWindow::prev_()
 {
+    int sequence_ = ctrl_wid_->sequece_;
+
     if(player_->cur_song == nullptr){
         return;
     }
-    int s_id = 0;
-    auto it = std::find(cur_list.begin(),cur_list.end(),player_->cur_song->getsongid());
-    if(it == cur_list.begin()){
-        s_id = cur_list.back();
-    }else{
-        s_id = *(--it);
+    if(play_list->getlist_1().empty()){
+        return;
     }
+    int s_id = 0;
+
+
+    if(sequence_ == 3){
+        std::srand(static_cast<unsigned>(std::time(nullptr)));
+        int random_index = std::rand() % play_list->getlist_1().size();
+
+        s_id = play_list->getlist_1().at(random_index);
+    }else{
+        auto it = std::find(play_list->getlist_1().begin(),play_list->getlist_1().end(),player_->cur_song->getsongid());
+        if(it == play_list->getlist_1().begin()){
+            s_id = play_list->getlist_1().back();
+        }else{
+            s_id = *(--it);
+        }
+    }
+
+    //此处需要重新播放
     player_->setsource_(map[s_id]);
+    //设置当前音乐信息
+    set_songinfo();
+    //修改状态
+    if(!ctrl_wid_->play_status){
+        //没播放，改成播放
+        ctrl_wid_->getstyle(ctrl_wid_->play_pause,"url(:icon/pause.png)");
+        ctrl_wid_->play_status = true;
+    }
+    player_->play_();
 }
 
 void MainWindow::next_()
 {
+    int sequence_ = ctrl_wid_->sequece_;
+
     if(player_->cur_song == nullptr){
         return;
     }
-    int s_id = 0;
-    auto it = std::find(cur_list.begin(),cur_list.end(),player_->cur_song->getsongid());
-    if(it == cur_list.end() - 1){
-        s_id = *(cur_list.begin());
-    }else{
-        s_id = *(++it);
+    if(play_list->getlist_1().empty()){
+        return;
     }
+    int s_id = 0;
+
+    if(sequence_ == 3){
+        std::srand(static_cast<unsigned>(std::time(nullptr)));
+        int random_index = std::rand() % play_list->getlist_1().size();
+
+        s_id = play_list->getlist_1().at(random_index);
+
+    }else{
+        auto it = std::find(play_list->getlist_1().begin(),play_list->getlist_1().end(),player_->cur_song->getsongid());
+        if(it == play_list->getlist_1().end() - 1){
+            s_id = *(play_list->getlist_1().begin());
+        }else{
+            s_id = *(++it);
+        }
+    }
+
     player_->setsource_(map[s_id]);
+    //设置当前音乐信息
+    set_songinfo();
+    //修改状态
+    if(!ctrl_wid_->play_status){
+        //没播放，改成播放
+        ctrl_wid_->getstyle(ctrl_wid_->play_pause,"url(:icon/pause.png)");
+        ctrl_wid_->play_status = true;
+    }
+    player_->play_();
 }
+
+
 
 
 //--------------------------------------------------------------------播放控制 结束--------------------------------------------------------------------

@@ -16,6 +16,16 @@ int wid_songlist::getsong_id()
     return this->song_id;
 }
 
+void wid_songlist::setsong_list_id(int song_list_id)
+{
+    this->song_list_id = song_list_id;
+}
+
+int wid_songlist::getsong_list_id()
+{
+    return this->song_list_id;
+}
+
 void wid_songlist::mouseDoubleClickEvent(QMouseEvent *event)
 {
     if(event->button() == Qt::LeftButton){
