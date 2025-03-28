@@ -41,9 +41,15 @@
 #include<QFutureWatcher>
 #include<QtConcurrent/QtConcurrentRun>
 #include<QMessageBox>
+#include<QCursor>
+#include<QMenu>
+#include<QAction>
 
 #include<cstdlib>
 #include<ctime>
+
+#include<QLineEdit>
+
 
 class MainWindow : public QMainWindow
 {
@@ -68,7 +74,7 @@ public:
     void settitle(QString window_title);
     void set_songinfo();
     void set_songlist_info(int songlist_id);
-    void set_songlist_menu(QVBoxLayout *in_scroolwid,QWidget *in_scroll);
+    void set_songlist_menu();
 
     QString to_time(int second_time);
     int of_time(QString minute_time);
@@ -91,6 +97,14 @@ public:
     void prev_();
     void next_();
 
+    //添加歌单
+    void add_list(QString& list_name);
+
+    //歌单右键菜单设置
+    void list_rightevent(songlistlabel *label);
+    void changelistname(songlistlabel *label);
+    void deletelist(songlistlabel *label);
+
 private:
     //界面相关
     QWidget *center;
@@ -108,6 +122,8 @@ private:
     QVBoxLayout *right;
     QSlider *slider;
 
+    QVBoxLayout *in_scroolwid;
+    QVector<songlistlabel*> song_list_labels;
 
     //进度条调整标志
     bool user_set_slider;
@@ -148,6 +164,8 @@ private:
     QSlider *voice_slider;
 
 
+    //存储一下“我的收藏”列表
+    QSet<int> my_favorite;
 
 
 

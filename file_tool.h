@@ -9,6 +9,7 @@
 #include<QMap>
 #include<QHash>
 #include<utility>
+#include<QSet>
 
 
 class file_tool : public QObject
@@ -49,6 +50,8 @@ public:
     QVector<int> getsonglist(int& listid);
     void deletesonglist(int& listid);
     void add_one_data(int listid,int addid);
+
+    QSet<int> getfavorite();
 
 
 signals:

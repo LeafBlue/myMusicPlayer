@@ -35,3 +35,8 @@ QVector<int>& song_list::getlist_1()
 {
     return v;
 }
+
+void song_list::setlistname(QString name)
+{
+    this->list_name = name;
+}

@@ -279,6 +279,23 @@ void file_tool::add_one_data(int listid,int addid){
     file.close();
 }
 
+QSet<int> file_tool::getfavorite()
+{
+    QSet<int> set;
+    QFile file(QString("%1/%2/0.csv").arg(projectpath).arg(foldername));
+    if(!file.open(QIODevice::ReadOnly|QIODevice::Text)){
+        return set;
+    }
+    QTextStream in(&file);
+
+    while(!in.atEnd()){
+        QString line = in.readLine();
+        set.insert(line.toInt());
+    }
+    file.close();
+    return set;
+}
+
 
 
 

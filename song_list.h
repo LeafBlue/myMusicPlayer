@@ -59,6 +59,8 @@ public:
 
     QVector<int>& getlist_1();
 
+    void setlistname(QString name);
+
 };
 
 #endif // SONG_LIST_H
