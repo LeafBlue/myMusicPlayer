@@ -11,5 +11,7 @@
         <file>icon/voice.png</file>
         <file>icon/music_demopic.jpg</file>
         <file>icon/bg_1.jpg</file>
+        <file>icon/dele.png</file>
+        <file>icon/addd.png</file>
     </qresource>
 </RCC>

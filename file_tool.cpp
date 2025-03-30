@@ -59,7 +59,8 @@ void file_tool::rewritesong(QMap<int,song_info>& songs){
             <<escapeCsvField(song.getsinger())
             <<escapeCsvField(song.getsong_filename())
             <<escapeCsvField(song.getsong_pic())
-            <<QString::number(song.getsong_time());
+            <<QString::number(song.getsong_time())
+            <<QString::number(song.get_isexist());
         out<<row.join(",")<<"\n";
 
     }
@@ -80,15 +81,20 @@ std::pair<QMap<int,song_info>,QHash<QString,int>> file_tool::select_song(){
         QString line = in.readLine();
         QStringList list = line.split(",");
         song_info song;
+        int isexist = list[6].toInt();
         song.setSong(list[0].toInt(),
                      unescapeCsvField(list[1]),
                      unescapeCsvField(list[2]),
                      unescapeCsvField(list[3]),
                      list[5].toInt(),
-                     unescapeCsvField(list[4])
+                     unescapeCsvField(list[4]),
+                     isexist
                      );
         map.insert(list[0].toInt(),song);
-        hash_.insert(song.getsong_filename(),song.getsongid());
+        if(isexist == 1){
+            //这里不会收录已删除的歌曲，这确保了已删除歌曲可以被重新上传
+            hash_.insert(song.getsong_filename(),song.getsongid());
+        }
     }
     file.close();
 
@@ -109,7 +115,8 @@ void file_tool::writesong(song_info& song){
         <<escapeCsvField(song.getsinger())
         <<escapeCsvField(song.getsong_filename())
         <<escapeCsvField(song.getsong_pic())
-        <<QString::number(song.getsong_time());
+        <<QString::number(song.getsong_time())
+        <<QString::number(song.get_isexist());
     out<<row.join(",")<<"\n";
     file.close();
 }
@@ -146,7 +153,8 @@ void file_tool::rewritesong_v(QVector<song_info>& songs){
             <<escapeCsvField(song.getsinger())
             <<escapeCsvField(song.getsong_filename())
             <<escapeCsvField(song.getsong_pic())
-            <<escapeCsvField(QString::number(song.getsong_time()));
+            <<escapeCsvField(QString::number(song.getsong_time()))
+            <<QString::number(song.get_isexist());
         out<<row.join(",")<<"\n";
     }
     file.close();
@@ -172,7 +180,8 @@ QVector<song_info> file_tool::select_song_v(){
             unescapeCsvField(list[2]),
             unescapeCsvField(list[3]),
             list[5].toInt(),
-            unescapeCsvField(list[4]));
+            unescapeCsvField(list[4]),
+            list[6].toInt());
         v.push_back(song);
     }
     file.close();
@@ -232,7 +241,7 @@ void file_tool::createsonglist(int listid){
     }
     file.close();
 }
-void file_tool::rewritesonglist(int& listid,QVector<int> songids){
+void file_tool::rewritesonglist(int listid,QVector<int> songids){
     QFile file(QString("%1/%2/%3.csv").arg(projectpath).arg(foldername).arg(QString::number(listid)));
     if(!file.open(QIODevice::WriteOnly|QIODevice::Text|QIODevice::Truncate)){
         return;
@@ -243,7 +252,7 @@ void file_tool::rewritesonglist(int& listid,QVector<int> songids){
     }
     file.close();
 }
-QVector<int> file_tool::getsonglist(int& listid){
+QVector<int> file_tool::getsonglist(int listid){
     QVector<int> v;
     QFile file(QString("%1/%2/%3.csv").arg(projectpath).arg(foldername).arg(QString::number(listid)));
     if(!file.open(QIODevice::ReadOnly|QIODevice::Text)){
@@ -256,9 +265,6 @@ QVector<int> file_tool::getsonglist(int& listid){
         v.push_back(line.toInt());
     }
     file.close();
-    std::sort(v.begin(),v.end(),[](int a,int b){
-        return a< b;
-    });
     return v;
 }
 void file_tool::deletesonglist(int& listid){

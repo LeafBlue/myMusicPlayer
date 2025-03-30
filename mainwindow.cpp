@@ -35,6 +35,8 @@ MainWindow::MainWindow(QWidget *parent)
     ctrl_wid_ = nullptr;
     player_ = new music_play();
 
+    opencheck = false;
+
 
     filetool = new file_tool();
 
@@ -91,6 +93,14 @@ MainWindow::MainWindow(QWidget *parent)
         }
     });
 
+    connect(player_,&music_play::to_next,[this](){
+        next_();
+    });
+
+    connect(player_,&music_play::addrecent,[this](int songinfoid){
+        add_to_recentplay(songinfoid);
+    });
+
 
 }
 
@@ -114,7 +124,7 @@ void MainWindow::setwindow()
     layout->setContentsMargins(0,0,0,0);
     layout->setSpacing(0);
 
-    title = new QWidget(center);
+    title = new TitleBar(center);
     title->setFixedHeight(50);
     title->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
     title->setStyleSheet("background-color: DimGray;");
@@ -250,6 +260,9 @@ void MainWindow::setworkarea()
             thislabel->setsonglistid(i - 1);
             connect(thislabel,&songlistlabel::leftclick,this,[this,thislabel](){
                 //执行左键点击函数
+                opencheck = false;
+                check_data.clear();
+                setlistbtn(thislabel->getsonglistid());
                 set_songlist_info(thislabel->getsonglistid());
             });
 
@@ -310,6 +323,7 @@ void MainWindow::setworkarea()
     //在此处添加一个输入框，将其隐藏，作为添加歌曲的输入框----------------------结束----------------------
 
     set_songlist_menu();
+
     setright1();
 
 }
@@ -457,6 +471,8 @@ void MainWindow::setright1(int songlist_id)
     painter.end();
     list_pic->setMask(mask);
 
+
+
     //做个显示文字的
     //就这样显示一下吧，反正也没有最大化
     list_name = new QLabel(r_main_info);
@@ -480,39 +496,99 @@ void MainWindow::setright1(int songlist_id)
     right->addWidget(r_main_info);
 
     //需要加几个按钮，作为对歌单的处理
-    QWidget *r_list_btn = new QWidget(center);
+    r_list_btn = new QWidget(center);
     r_list_btn->setFixedHeight(50);
     r_list_btn->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Fixed);
     r_list_btn->setStyleSheet("background-color:lightgray;");
-    QHBoxLayout *list_btn_layout = new QHBoxLayout(r_list_btn);
 
+    list_btn_layout = nullptr;
+    setlistbtn(songlist_id);
 
-    list_btn_layout->addSpacing(50);
-    for (int btnnum = 0; btnnum < 3; ++btnnum) {
-        QPushButton *btn1 = new QPushButton();
-        if(btnnum == 0){
-            btn1->setText(QObject::tr("添加音乐"));
-            connect(btn1,&QPushButton::clicked,[this,songlist_id](){
-                addmusicfromfile(songlist_id);
-            });
-        }else if(btnnum == 1){
-            btn1->setText(QObject::tr("播放全部"));
-        }else if(btnnum == 2){
-            btn1->setText(QObject::tr("批量操作"));
-        }
-        btn1->setFixedSize(100,30);
-        btn1->setStyleSheet("QPushButton {background-color: SlateGray;color:silver;font-size:20px;font-weight: bold;border:0.5px solid DimGray; }"
-                            "QPushButton:hover {background-color: DarkSlateGray;color:silver;font-size:20px;font-weight: bold;border:0.5px solid DimGray; }"
-                            "QPushButton:pressed {background-color: DarkSlateGray;color:silver;font-size:18px;font-weight: bold;border:2px solid DimGray; }");
-
-
-        list_btn_layout->addWidget(btn1);
-    }
-    list_btn_layout->addStretch();
     right->addWidget(r_list_btn);
 
     setlist1(this_songlist);
 
+}
+
+void MainWindow::setlistbtn(int songlist_id)
+{
+    if (r_list_btn->layout()) {
+        // 清空旧布局中的所有内容
+        QLayout *oldLayout = r_list_btn->layout();
+        QLayoutItem *item;
+        while ((item = oldLayout->takeAt(0)) != nullptr) {
+            delete item->widget();  // 删除布局中的控件
+            delete item;            // 删除布局项
+        }
+        delete oldLayout;  // 删除旧布局
+    }
+
+    list_btn_layout = new QHBoxLayout(r_list_btn);
+
+
+    list_btn_layout->addSpacing(50);
+
+    if(songlist_id != 2 && songlist_id != 0){
+        list_upmenu *btn1 = new list_upmenu();
+        btn1->setText(QObject::tr("添加音乐"));
+        connect(btn1,&QPushButton::clicked,[this,songlist_id](){
+            addmusicfromfile(songlist_id);
+        });
+        list_btn_layout->addWidget(btn1);
+    }
+
+
+    list_upmenu *btn2 = new list_upmenu();
+    btn2->setText(QObject::tr("播放全部"));
+    connect(btn2,&QPushButton::clicked,[this](){
+        player_->cur_song = nullptr;
+        if(!ctrl_wid_->play_status){
+            ctrl_wid_->getstyle(ctrl_wid_->play_pause,"url(:icon/pause.png)");
+            ctrl_wid_->play_status = true;
+        }
+        play_music();
+    });
+    list_btn_layout->addWidget(btn2);
+
+    if(songlist_id != 2 && songlist_id != 0){
+        if(!opencheck){
+            list_upmenu *btn3 = new list_upmenu();
+            btn3->setText(QObject::tr("批量操作"));
+
+            connect(btn3,&QPushButton::clicked,[this,songlist_id](){
+                opencheck = true;
+                setlistbtn(songlist_id);
+                set_songlist_info(songlist_id);
+            });
+            list_btn_layout->addWidget(btn3);
+        }else{
+            list_upmenu *btn4 = new list_upmenu();
+            btn4->setText(QObject::tr("取消批量"));
+            connect(btn4,&QPushButton::clicked,[this,songlist_id](){
+                opencheck = false;
+                check_data.clear();
+                setlistbtn(songlist_id);
+                set_songlist_info(songlist_id);
+            });
+            list_btn_layout->addWidget(btn4);
+
+            list_upmenu *btn5 = new list_upmenu();
+            btn5->setText(QObject::tr("添加到歌单"));
+            connect(btn5,&QPushButton::clicked,[this](){
+                addsongtolist_dialog();
+            });
+            list_btn_layout->addWidget(btn5);
+
+
+            list_upmenu *btn6 = new list_upmenu();
+            btn6->setText(QObject::tr("批量删除"));
+            connect(btn6,&QPushButton::clicked,[this](){
+                deletesongfromlist();
+            });
+            list_btn_layout->addWidget(btn6);
+        }
+    }
+    list_btn_layout->addStretch();
 }
 
 
@@ -659,6 +735,9 @@ void MainWindow::set_songlist_menu()
             left_label->setsonglistid(thislist_id);
             connect(left_label,&songlistlabel::leftclick,this,[this,left_label](){
                 //执行左键点击函数
+                opencheck = false;
+                check_data.clear();
+                setlistbtn(left_label->getsonglistid());
                 set_songlist_info(left_label->getsonglistid());
             });
             connect(left_label,&songlistlabel::rightclick,this,[this,left_label](){
@@ -701,6 +780,7 @@ void MainWindow::set_songlist_menu()
 void MainWindow::setlist1(song_list *songlist,int page)
 {
 
+    cur_page = page;
     //在重新初始化此组件前，先将原来的妥善处理
     //这里的做法颇有点拖泥带水，但更好的做法需要更麻烦的操作
     if (scroll) {
@@ -738,7 +818,7 @@ void MainWindow::setlist1(song_list *songlist,int page)
             head_layout->addWidget(label_head,6);
         }else if(i == 2){
             label_head->setText("操作");
-            head_layout->addWidget(label_head,4);
+            head_layout->addWidget(label_head,3);
         }else if(i == 3){
             label_head->setText("歌手");
             head_layout->addWidget(label_head,4);
@@ -772,6 +852,7 @@ void MainWindow::setlist1(song_list *songlist,int page)
                 }
                 song_info cur_song_ = map[cur_list->getlist_1()[index]];
 
+
                 QString back_color = "";
                 if(iscolor){
                     back_color = "silver";
@@ -782,11 +863,11 @@ void MainWindow::setlist1(song_list *songlist,int page)
                 }
 
                 wid_songlist *wid_row = new wid_songlist();
-                wid_row->setFixedHeight(30);
+                wid_row->setFixedHeight(40);
                 wid_row->setsong_id(cur_song_.getsongid());
                 wid_row->setsong_list_id(this_songlistid);
                 wid_row->setStyleSheet("wid_songlist{background-color:"+back_color+";}"
-                                       "wid_songlist:hover{background-color:MediumPurple;}");
+                                       "wid_songlist:hover{background-color:"+back_color+";border:4px solid SteelBlue;}");
 
                 //绑定双击事件
                 connect(wid_row,&wid_songlist::doubleclick,[&,index,wid_row](){
@@ -808,22 +889,96 @@ void MainWindow::setlist1(song_list *songlist,int page)
                 for (int i = 0; i < 5; ++i) {
                     QLabel *label_head = new QLabel();
                     label_head->setAlignment(Qt::AlignCenter);
-                    label_head->setFixedHeight(30);
+                    label_head->setFixedHeight(40);
+                    int is_ex = cur_song_.get_isexist();
 
                     //label_head->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+                    //当出现无效歌曲时，将其设置为“红色字体”
                     label_head->setStyleSheet("QLabel{border:1px solid lightgray;color:black;font-size:14px;background-color: transparent;}");
+                    if(is_ex == 0){
+                        label_head->setStyleSheet("QLabel{border:1px solid lightgray;color:red;font-size:14px;background-color: transparent;}");
+                    }
                     if(i == 0){
-                        label_head->setText(QString::number(cur_song_.getsongid() + 1));
+                        label_head->setText(QString::number(index + 1));
                         row->addWidget(label_head,1);
                     }else if(i == 1){
                         QString songname_ = cur_song_.getsongname();
                         songname_ = songname_.size()>16?(songname_.left(16) + "..."):songname_;
+
                         label_head->setText(songname_);
+
                         row->addWidget(label_head,6);
                     }else if(i == 2){
                         //此功能待完善
-                        label_head->setText("操作");
-                        row->addWidget(label_head,4);
+                        //label_head->setText("操作");
+                        QHBoxLayout *song_menu = new QHBoxLayout(label_head);
+                        song_menu->setContentsMargins(0,0,0,0);
+                        song_menu->setSpacing(3);
+                        song_menu->setAlignment(Qt::AlignCenter);
+
+                        if(opencheck){
+                            QCheckBox *check = new QCheckBox();
+                            int l_songid = cur_song_.getsongid();
+                            check->setChecked(check_data.contains(l_songid));
+                            check->setStyleSheet("QCheckBox {"
+                                 "   margin: 0px;"                   // 清除外边距
+                                 "   padding: 0px;"
+                                 "   spacing: 0px;"
+                                "}"
+                                "QCheckBox::indicator {"
+                                "   width: 20px;"      // 指示器宽度
+                                "   height: 20px;"     // 指示器高度
+                                "   margin: 0px;"
+                                "}");
+                            connect(check,&QCheckBox::stateChanged,[this,l_songid](int state){
+                                if (state == Qt::Checked) {
+                                    check_data.insert(l_songid);
+                                } else if (state == Qt::Unchecked) {
+                                    check_data.erase(check_data.find(l_songid));
+                                }
+                            });
+
+                            song_menu->addWidget(check);
+                        }else{
+                            menu_of_song *menu1 = new menu_of_song();
+                            menu1->menu_type = 1;
+                            menu1->getstyle(iscolor);
+
+                            connect(menu1,&QPushButton::clicked,[&,index,wid_row](){
+                                if(!ctrl_wid_->play_status){
+                                    ctrl_wid_->getstyle(ctrl_wid_->play_pause,"url(:icon/pause.png)");
+                                    ctrl_wid_->play_status = true;
+                                }
+                                play_music(cur_list->getlist_1()[index], wid_row->getsong_list_id());
+                            });
+
+                            menu_of_song *menu2 = new menu_of_song();
+                            menu2->menu_type = 2;
+                            menu2->getstyle(iscolor);
+
+                            connect(menu2,&QPushButton::clicked,[this,cur_song_](){
+                                int this_songid = cur_song_.getsongid();
+                                addsongtolist_dialog(this_songid);
+                            });
+
+                            song_menu->addWidget(menu1);
+                            song_menu->addWidget(menu2);
+
+                            if(this_songlistid != 2){
+                                menu_of_song *menu3 = new menu_of_song();
+                                menu3->menu_type = 3;
+                                menu3->getstyle(iscolor);
+
+                                connect(menu3,&QPushButton::clicked,[this,cur_song_](){
+                                    int this_songid = cur_song_.getsongid();
+                                    deletesongfromlist(this_songid);
+                                });
+                                song_menu->addWidget(menu3);
+                            }
+
+                        }
+
+                        row->addWidget(label_head,3);
                     }else if(i == 3){
                         QString singer_ = cur_song_.getsinger();
                         singer_ = singer_.size()>12?(singer_.left(12) + "..."):singer_;
@@ -859,6 +1014,7 @@ void MainWindow::setlist1(song_list *songlist,int page)
                             btn_head->setStyleSheet("QPushButton {color:white;font-size:18px;background-color:LightBlue; }"
                                                     "QPushButton:hover {color:white;font-size:18px;background-color:LightBlue; }"
                                                     "QPushButton:pressed {color:white;font-size:15px;background-color:LightBlue; }");
+
 
 
 
@@ -978,15 +1134,23 @@ void MainWindow::list_rightevent(songlistlabel *label)
     menu.addAction(action1);
     menu.addAction(action2);
 
+    connect(action1,&QAction::triggered,[this,label](){
+        changelistname(label);
+    });
+
+    connect(action2,&QAction::triggered,[this,label](){
+        deletelist(label);
+    });
+
     menu.exec(mouseplace);
 }
 
 void MainWindow::changelistname(songlistlabel *label)
 {
-    int thislist_id = label->songlist_id;
+    int thislist_id = label->getsonglistid();
     label->setText("");
 
-    QHBoxLayout *addlist_lay = new QHBoxLayout(addlist_label);
+    QHBoxLayout *addlist_lay = new QHBoxLayout(label);
     addlist_lay->setContentsMargins(0,0,0,0);
     addlist_lay->setSpacing(5);
 
@@ -1002,8 +1166,20 @@ void MainWindow::changelistname(songlistlabel *label)
     ok_for_input->setStyleSheet("QPushButton { border:1px solid lightgray; color:lightgray; }"
                                 "QPushButton:hover { border:1px solid black;color:black; }");
 
-    connect(ok_for_input,&QPushButton::clicked,[this,addlist_label,input_listname](){
+    connect(ok_for_input,&QPushButton::clicked,[this,thislist_id,input_listname](){
+        QString list_newname = input_listname->text();
+        for (int i_ = 0; i_ < songlist_v.size(); ++i_) {
+            if(songlist_v[i_].getlistnum() == thislist_id){
+                songlist_v[i_].setlistname(list_newname);
+            }
+        }
+        filetool->rewritelist(songlist_v);
+        set_songlist_menu();
 
+
+        if(cur_list->getlistnum() == thislist_id){
+            set_songlist_info(thislist_id);
+        }
     });
 
     QPushButton *no_for_input = new QPushButton("×");
@@ -1012,9 +1188,9 @@ void MainWindow::changelistname(songlistlabel *label)
     no_for_input->setStyleSheet("QPushButton { border:1px solid lightgray; color:lightgray; }"
                                 "QPushButton:hover { border:1px solid black;color:black; }");
 
-    connect(no_for_input,&QPushButton::clicked,[addlist_label,input_listname](){
-        input_listname->setText("");
-        addlist_label->hide();
+    connect(no_for_input,&QPushButton::clicked,[this](){
+        set_songlist_menu();
+
     });
 
     addlist_lay->addSpacing(5);
@@ -1024,17 +1200,229 @@ void MainWindow::changelistname(songlistlabel *label)
     addlist_lay->addSpacing(5);
 
 
-    for (int i_ = 0; i_ < songlist_v.size(); ++i_) {
-        if(songlist_v.at(i_).getlistnum() == thislist_id){
-            songlist_v.at(i_).
-        }
-    }
 
 }
 
 void MainWindow::deletelist(songlistlabel *label)
 {
+    int thislist_id = label->getsonglistid();
 
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("询问"); // 设置窗口标题
+    msgBox.setText("是否要删除此歌单？"); // 设置提示文本
+    msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+
+    int result = msgBox.exec();
+
+    if (result == QMessageBox::Ok) {
+        auto it = std::remove_if(songlist_v.begin(), songlist_v.end(),
+                                 [thislist_id](const song_list& item) {
+                                     return item.getlistnum() == thislist_id; // 比较 id
+                                 });
+
+        // 删除多余的元素
+        songlist_v.erase(it, songlist_v.end());
+
+        filetool->rewritelist(songlist_v);
+        filetool->deletesonglist(thislist_id);
+        set_songlist_menu();
+        if(cur_list->getlistnum() == thislist_id){
+            set_songlist_info(3);
+        }
+
+    }
+}
+
+void MainWindow::deletesongfromlist(int songinfoid)
+{
+    //一般我们默认这个地方打开的就是当前歌单，否则不可能调用这个函数
+    int cur_listnum = cur_list->getlistnum();//默认0 我的收藏，1 本地音乐，2 最近播放，3 全部音乐
+
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("删除确认"); // 设置窗口标题
+    msgBox.setText("是否删除选中歌曲？"); // 设置提示文本
+    if(cur_listnum == 1 || cur_listnum == 3){
+        msgBox.setText("此操作将会从系统中删除歌曲，是否删除？");
+    }
+    msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+
+    int result = msgBox.exec();
+
+    if (result == QMessageBox::Ok) {
+
+        if(songinfoid >= 0){
+            check_data.insert(songinfoid);
+        }
+
+
+        auto it = std::remove_if(cur_list->getlist_1().begin(), cur_list->getlist_1().end(),
+                                 [this](const int& item) {
+                                     return this->check_data.contains(item); // 比较 id
+                                 });
+
+        //删除多余的元素
+        cur_list->getlist_1().erase(it, cur_list->getlist_1().end());
+        //重新写入文件
+        filetool->rewritesonglist(cur_listnum,cur_list->getlist_1());
+        //当歌单是1或者3时，需要同时删除map中的数据
+        if(cur_listnum == 1 || cur_listnum == 3){
+            map[songinfoid].set_isexist(0);
+            //重新写入文件
+            filetool->rewritesong(map);
+        }
+        else if(cur_listnum == 2){
+            //等待实现
+
+
+        }
+
+        //说明是通过点击框进来的，删除对应数据
+        if(songinfoid >= 0){
+            check_data.clear();
+        }
+
+        //重新加载页面
+        set_songlist_info(cur_listnum);
+    }
+}
+
+void MainWindow::addsongtolist_dialog(int songinfoid)
+{
+    QDialog *dialog = new QDialog(this);
+    dialog->setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+    dialog->resize(200,350);
+    dialog->setModal(true); // 设置为模态窗口
+
+    QScrollArea *scro_ = new QScrollArea(dialog);
+    scro_->setWidgetResizable(false);
+    scro_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    scro_->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    scro_->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
+    QVBoxLayout *dialogLayout = new QVBoxLayout(dialog);
+    dialogLayout->addWidget(scro_);
+    dialogLayout->setContentsMargins(0, 0, 0, 0);
+
+    QWidget *scro_wid = new QWidget(scro_);
+    QVBoxLayout *scrowid_lay = new QVBoxLayout(scro_wid);
+    scrowid_lay->setContentsMargins(0,0,0,0);
+    scrowid_lay->setSpacing(0);
+
+
+    QLabel *l_lab = new QLabel();
+    l_lab->setText("添加音乐到...");
+    l_lab->setFixedSize(200,40);
+    l_lab->setStyleSheet("QLabel{border:1px solid black;background-color:white;font-size: 16px;color:gray;}");
+
+
+    scrowid_lay->addWidget(l_lab);
+
+
+    dialog_label* sc_label = new dialog_label();
+    sc_label->setText(" 我的收藏");
+    sc_label->songlist_id = 0;
+    connect(sc_label,&dialog_label::leftclick,[this,dialog,sc_label,songinfoid](){
+        int l_listid = sc_label->songlist_id;
+
+        addsongtolist(l_listid,songinfoid);
+        dialog->close();
+        dialog->deleteLater();
+    });
+
+    scrowid_lay->addWidget(sc_label);
+
+    for (int i_ = 4; i_ < songlist_v.size(); ++i_) {
+
+        if(songlist_v[i_].getlistnum() == cur_list->getlistnum()){
+            continue;
+        }
+
+        dialog_label* d_label = new dialog_label();
+        d_label->setText(" " + songlist_v[i_].getlistname());
+        d_label->songlist_id = songlist_v[i_].getlistnum();
+        connect(d_label,&dialog_label::leftclick,[this,dialog,d_label,songinfoid](){
+            int l_listid = d_label->songlist_id;
+
+            addsongtolist(l_listid,songinfoid);
+            dialog->close();
+            dialog->deleteLater();
+        });
+
+        scrowid_lay->addWidget(d_label);
+    }
+
+    dialog_label* qx_label = new dialog_label();
+    qx_label->setText(" 取消");
+    scrowid_lay->addWidget(qx_label);
+    connect(qx_label,&dialog_label::leftclick,[dialog](){
+        dialog->close();
+        dialog->deleteLater();
+    });
+
+
+    scrowid_lay->addStretch(0);
+    scro_->setWidget(scro_wid);
+
+
+    QPoint globalPos = QCursor::pos();
+    dialog->move(globalPos);
+    dialog->exec();
+}
+
+void MainWindow::addsongtolist(int songlist_id,int songinfoid)
+{
+    //这里需要处理收藏等逻辑
+    QVector<int> l_listv = filetool->getsonglist(songlist_id);
+
+    QSet<int> l_set(l_listv.begin(),l_listv.end());
+
+    if(songinfoid >= 0){
+        check_data.insert(songinfoid);
+    }
+
+
+    int all_num = check_data.size();
+    int add_num = 0;
+    for (int value : check_data) {
+        if (!l_set.contains(value)) {
+            //不存在，执行添加
+            l_listv.push_back(value);
+            if(songlist_id == 0){
+                //这里应该让歌曲显示成收藏标志，但是我没法获取分页，贸然刷新显得突兀。暂且搁置此功能
+                my_favorite.insert(value);
+            }
+
+            ++add_num;
+        }
+    }
+    //添加完毕，存入文件
+    filetool->rewritesonglist(songlist_id,l_listv);
+
+    if(songinfoid >= 0){
+        check_data.clear();
+    }
+
+
+    //显示个提示框
+    Toast* toast_ = new Toast(QString(" %1 首歌曲成功添加到歌单，存在 %2 首重复歌曲已跳过。").arg(QString::number(add_num)).arg(QString::number(all_num - add_num)),this);
+    toast_->setAttribute(Qt::WA_DeleteOnClose);
+    toast_->showAutoClose();
+
+}
+
+void MainWindow::add_to_recentplay(int songinfoid)
+{
+    //QVector<int> l_listv = filetool->getsonglist(2);
+    //去除已存在数据
+    recent_play.erase(std::remove(recent_play.begin(),recent_play.end(),songinfoid),recent_play.end());
+    //添加
+    recent_play.push_front(songinfoid);
+    //将容器控制在100以内
+    if(recent_play.size() > 100){
+        recent_play.resize(100);
+    }
+    //存入文件
+    filetool->rewritesonglist(2,recent_play);
 }
 
 
@@ -1055,6 +1443,8 @@ void MainWindow::get_map_data()
     check_hash = std::move(pair_.second);
 
     my_favorite = filetool->getfavorite();
+
+    recent_play = filetool->getsonglist(2);
 }
 
 void MainWindow::create_files()
@@ -1159,7 +1549,9 @@ void MainWindow::addmusicfromfile(int listid)
 
             int song_id = map.size();
             song_info info;
-            info.setSong(song_id,song_name,singer,filename,song_time);
+            int is_e = 1;
+            QString pic = "";
+            info.setSong(song_id,song_name,singer,filename,song_time,pic,is_e);
 
             //加入到全局变量，无需加入list，会重置
             map.insert(song_id,info);
@@ -1349,12 +1741,6 @@ void MainWindow::next_()
     }
     player_->play_();
 }
-
-
-
-
-
-
 //--------------------------------------------------------------------播放控制 结束--------------------------------------------------------------------
 
 

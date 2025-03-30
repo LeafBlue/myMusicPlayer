@@ -21,6 +21,8 @@ private:
     //上次暂停时间（秒）
     int last_time;
 
+    int isexist;//会被标记为删除，0不存在1存在  默认值是1
+
 
 
 public:
@@ -28,8 +30,8 @@ public:
 
     song_info(const song_info& other);
 
-    void setSong(QString song_name,QString singer,QString song_filename,int song_time,QString song_pic = "");
-    void setSong(int song_id,QString song_name,QString singer,QString song_filename,int song_time,QString song_pic = "");
+    void setSong(QString song_name,QString singer,QString song_filename,int song_time,QString song_pic = "",int isexist = 1);
+    void setSong(int song_id,QString song_name,QString singer,QString song_filename,int song_time,QString song_pic = "",int isexist = 1);
     int getsongid()const;
     QString getsongname()const;
     QString getsinger()const;
@@ -39,6 +41,9 @@ public:
     int getlast_time()const;
 
     void setlast_time(int lasttime);
+
+    int get_isexist()const;
+    void set_isexist(int data);
 };
 
 #endif // SONG_INFO_H

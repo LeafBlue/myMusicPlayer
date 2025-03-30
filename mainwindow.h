@@ -35,6 +35,12 @@
 #include"wid_songlist.h"
 #include"wid_ctrl.h"
 #include"music_play.h"
+#include"menu_of_song.h"
+#include"dialog_label.h"
+#include"toast.h"
+#include"list_upmenu.h"
+#include"titlebar.h"
+
 #include<QHash>
 #include<QProgressDialog>
 #include<QFuture>
@@ -49,6 +55,7 @@
 #include<ctime>
 
 #include<QLineEdit>
+#include<QCheckBox>
 
 
 class MainWindow : public QMainWindow
@@ -68,6 +75,8 @@ public:
     void setcontrol();
 
     void setright1(int songlist_id = 3);
+    void setlistbtn(int songlist_id);
+
     void setlist1(song_list* songlist = nullptr,int page = 1);
 
 
@@ -105,10 +114,18 @@ public:
     void changelistname(songlistlabel *label);
     void deletelist(songlistlabel *label);
 
+    //歌曲菜单操作
+    void deletesongfromlist(int songinfoid = -1);
+    void addsongtolist_dialog(int songinfoid = -1);
+
+    void addsongtolist(int songlist_id,int songinfoid = -1);
+    //为最近播放单独写添加函数
+    void add_to_recentplay(int songinfoid);
+
 private:
     //界面相关
     QWidget *center;
-    QWidget *title;
+    TitleBar *title;
     QHBoxLayout *work_area;
     QHBoxLayout *control_area;
     QLabel *title_text;
@@ -125,6 +142,9 @@ private:
     QVBoxLayout *in_scroolwid;
     QVector<songlistlabel*> song_list_labels;
 
+    QWidget *r_list_btn;
+    QHBoxLayout *list_btn_layout;
+
     //进度条调整标志
     bool user_set_slider;
 
@@ -135,6 +155,8 @@ private:
     //QVector<int> cur_list;
     //当前 播放列表
     song_list* play_list;
+    //维护一个数据存储当前“页码”
+    int cur_page;
 
     //文件工具
     file_tool *filetool;
@@ -166,7 +188,12 @@ private:
 
     //存储一下“我的收藏”列表
     QSet<int> my_favorite;
+    //存储一下最近播放列表
+    QVector<int> recent_play;
 
+    //这个用来存储复选框
+    QSet<int> check_data;
+    bool opencheck;
 
 
 

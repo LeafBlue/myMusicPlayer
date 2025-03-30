@@ -11,9 +11,10 @@ song_info::song_info(const song_info &other)
     this->song_filename = other.getsong_filename();
     this->song_time = other.getsong_time();
     this->song_pic = other.getsong_pic();
+    this->isexist = other.get_isexist();
 }
 
-void song_info::setSong(QString song_name,QString singer,QString song_filename,int song_time,QString song_pic){
+void song_info::setSong(QString song_name,QString singer,QString song_filename,int song_time,QString song_pic,int isexist){
 
     //设置id
     this->song_name = song_name;
@@ -21,10 +22,11 @@ void song_info::setSong(QString song_name,QString singer,QString song_filename,i
     this->song_filename = song_filename;
     this->song_time = song_time;
     this->song_pic = song_pic;
+    this->isexist = isexist;
 
 }
 
-void song_info::setSong(int song_id, QString song_name, QString singer, QString song_filename, int song_time, QString song_pic)
+void song_info::setSong(int song_id, QString song_name, QString singer, QString song_filename, int song_time, QString song_pic,int isexist)
 {
     this->song_id = song_id;
     this->song_name = song_name;
@@ -32,6 +34,7 @@ void song_info::setSong(int song_id, QString song_name, QString singer, QString 
     this->song_filename = song_filename;
     this->song_time = song_time;
     this->song_pic = song_pic;
+    this->isexist = isexist;
 }
 int song_info::getsongid()const{
     return this->song_id;
@@ -57,4 +60,14 @@ int song_info::getlast_time()const{
 
 void song_info::setlast_time(int lasttime){
     this->last_time = lasttime;
+}
+
+int song_info::get_isexist() const
+{
+    return isexist;
+}
+
+void song_info::set_isexist(int data)
+{
+    this->isexist = data;
 }

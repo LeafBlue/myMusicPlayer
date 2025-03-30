@@ -51,6 +51,10 @@ signals:
     void send_position(int pos_);
 
     void send_stop();
+
+    void to_next();
+
+    void addrecent(int songinfoid);
 };
 
 #endif // MUSIC_PLAY_H

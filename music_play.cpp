@@ -25,13 +25,16 @@ void music_play::setsource_(song_info& song)
 
     player.setSource(QUrl::fromLocalFile(cur_song->getsong_filename()));
 
-
+    emit addrecent(cur_song->getsongid());
 
 }
 
 void music_play::play_()
 {
-    if(player.mediaStatus() == QMediaPlayer::LoadingMedia){
+    if(cur_song->get_isexist() == 0){//这首歌已被删除，跳过
+        emit to_next();
+        return;
+    }else if(player.mediaStatus() == QMediaPlayer::LoadingMedia){
         connect(&player,&QMediaPlayer::mediaStatusChanged,[&,this](QMediaPlayer::MediaStatus status){
             if(status == QMediaPlayer::LoadedMedia){
 
@@ -41,8 +44,6 @@ void music_play::play_()
 
                 player.play();
                 disconnect(&player,&QMediaPlayer::mediaStatusChanged,nullptr,nullptr);
-
-
             }
         });
     }else{

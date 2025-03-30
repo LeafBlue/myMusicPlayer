@@ -46,8 +46,8 @@ public:
 
 
     void createsonglist(int listid);
-    void rewritesonglist(int& listid,QVector<int> songids);
-    QVector<int> getsonglist(int& listid);
+    void rewritesonglist(int listid,QVector<int> songids);
+    QVector<int> getsonglist(int listid);
     void deletesonglist(int& listid);
     void add_one_data(int listid,int addid);
 

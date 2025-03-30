@@ -36,6 +36,14 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         wid_songlist.h wid_songlist.cpp
         wid_ctrl.h wid_ctrl.cpp
         music_play.h music_play.cpp
+        menu_of_song.h menu_of_song.cpp
+        icon/addd.png icon/dele.png
+        dialog_label.h dialog_label.cpp
+        toast.h toast.cpp
+        list_upmenu.h list_upmenu.cpp
+        titlebar.h titlebar.cpp
+
+
 
     )
 # Define target properties for Android with Qt 6 as:
